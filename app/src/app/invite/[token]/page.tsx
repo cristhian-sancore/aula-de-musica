@@ -16,10 +16,16 @@ type LinkData = {
   id: string;
   token: string;
   studentName: string;
-  teacher: { name: string; whatsapp?: string };
   instruments: string[];
   paymentMethods: string[];
   modules: { module: Module }[];
+  teacher: {
+    name: string;
+    whatsapp?: string;
+    settings?: {
+      cardTaxRate: number;
+    }
+  }
 };
 
 export default function InvitePage() {
@@ -40,6 +46,7 @@ export default function InvitePage() {
   const [password, setPassword] = useState("");
   const [selectedInstrument, setSelectedInstrument] = useState("");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
+  const [installments, setInstallments] = useState(1);
   const [submitting, setSubmitting] = useState(false);
 
   async function fetchLinkData(token: string) {
@@ -79,9 +86,18 @@ export default function InvitePage() {
 
   const getSelectedTotal = () => {
     if (!linkData) return 0;
-    return linkData.modules
+    const baseTotal = linkData.modules
       .filter(m => selectedModules.includes(m.module.id))
       .reduce((acc, curr) => acc + curr.module.price, 0);
+
+    const isCreditCard = selectedPaymentMethod.toLowerCase().includes("cartão") || selectedPaymentMethod.toLowerCase().includes("cartao");
+    const taxRate = linkData.teacher.settings?.cardTaxRate || 0;
+
+    if (isCreditCard && installments >= 4 && taxRate > 0) {
+      return baseTotal + (baseTotal * taxRate / 100);
+    }
+    
+    return baseTotal;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -101,6 +117,7 @@ export default function InvitePage() {
           selectedModules,
           instrument: selectedInstrument,
           paymentMethod: selectedPaymentMethod,
+          installments: installments.toString(),
         })
       });
 
@@ -367,7 +384,12 @@ export default function InvitePage() {
                     required 
                     className="input-field"
                     value={selectedPaymentMethod}
-                    onChange={e => setSelectedPaymentMethod(e.target.value)}
+                    onChange={e => {
+                      setSelectedPaymentMethod(e.target.value);
+                      if (!e.target.value.toLowerCase().includes("cartão") && !e.target.value.toLowerCase().includes("cartao")) {
+                        setInstallments(1); // Reset if not credit card
+                      }
+                    }}
                   >
                     <option value="" disabled>Selecione uma forma de pagamento...</option>
                     {linkData.paymentMethods.map(pm => (
@@ -376,6 +398,42 @@ export default function InvitePage() {
                   </select>
                 </div>
               )}
+
+              {(selectedPaymentMethod.toLowerCase().includes("cartão") || selectedPaymentMethod.toLowerCase().includes("cartao")) && (
+                <div className="form-group animate-fade-in">
+                  <label>Em quantas vezes?</label>
+                  <select 
+                    required 
+                    className="input-field"
+                    value={installments}
+                    onChange={e => setInstallments(parseInt(e.target.value))}
+                  >
+                    {[...Array(12)].map((_, i) => {
+                      const parcels = i + 1;
+                      return (
+                        <option key={parcels} value={parcels}>{parcels}x</option>
+                      )
+                    })}
+                  </select>
+                  {installments >= 4 && (linkData.teacher.settings?.cardTaxRate || 0) > 0 && (
+                    <small className="help-text" style={{ color: 'var(--color-primary)' }}>
+                      Pagamentos a partir de 4x possuem um acréscimo de {linkData.teacher.settings?.cardTaxRate}% repassado da operadora.
+                    </small>
+                  )}
+                </div>
+              )}
+
+              <div className="summary-total" style={{ marginTop: '24px', padding: '16px', background: 'var(--color-surface)', borderRadius: 'var(--radius-md)' }}>
+                <span>Valor Final da Matrícula</span>
+                <div style={{ textAlign: 'right' }}>
+                  <strong style={{ fontSize: '1.25rem' }}>R$ {getSelectedTotal().toFixed(2)}</strong>
+                  {(selectedPaymentMethod.toLowerCase().includes("cartão") || selectedPaymentMethod.toLowerCase().includes("cartao")) && installments > 1 && (
+                    <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
+                      {installments}x de R$ {(getSelectedTotal() / installments).toFixed(2)}
+                    </div>
+                  )}
+                </div>
+              </div>
 
               <div className="action-row space-between" style={{ marginTop: '24px' }}>
                 <button type="button" className="btn-text" onClick={() => setStep(3)}>

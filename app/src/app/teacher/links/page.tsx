@@ -33,6 +33,7 @@ export default function LinksPage() {
   const [instruments, setInstruments] = useState("");
   const [paymentMethods, setPaymentMethods] = useState("");
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [globalSettings, setGlobalSettings] = useState<any>(null);
 
   async function fetchLinks() {
     try {
@@ -52,11 +53,22 @@ export default function LinksPage() {
     try {
       const res = await fetch("/api/modules");
       if (res.ok) {
-        const data = await res.json();
-        setAvailableModules(data);
-      }
+      const data = await res.json();
+      setAvailableModules(data);
     } catch (error) {
       console.error("Erro ao buscar módulos disponíveis", error);
+    }
+  }
+
+  async function fetchSettings() {
+    try {
+      const res = await fetch("/api/teacher/settings");
+      if (res.ok) {
+        const data = await res.json();
+        setGlobalSettings(data);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar configurações", error);
     }
   }
 
@@ -65,6 +77,8 @@ export default function LinksPage() {
     void fetchLinks();
     // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
     void fetchAvailableModules();
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+    void fetchSettings();
   }, []);
 
   const handleToggleModule = (id: string) => {
@@ -111,8 +125,8 @@ export default function LinksPage() {
   const openNewLinkModal = () => {
     setEditingLinkId(null);
     setStudentName("");
-    setInstruments("Violão, Teclado, Guitarra, Baixo, Bateria, Canto");
-    setPaymentMethods("PIX, Cartão de Crédito, Boleto");
+    setInstruments(globalSettings?.defaultInstruments?.join(", ") || "Violão, Teclado, Guitarra, Baixo, Bateria, Canto");
+    setPaymentMethods(globalSettings?.defaultPaymentMethods?.join(", ") || "PIX, Cartão de Crédito, Boleto");
     setSelectedModules([]);
     setShowModal(true);
   };

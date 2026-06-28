@@ -36,11 +36,23 @@ model User {
   updatedAt     DateTime     @updatedAt
 
   // Teacher relationships
-  taughtModules Module[]     @relation("TeacherModules")
-  customLinks   CustomLink[] @relation("TeacherLinks")
+  taughtModules Module[]         @relation("TeacherModules")
+  customLinks   CustomLink[]     @relation("TeacherLinks")
+  settings      TeacherSettings?
 
   // Student relationships
   enrollments   Enrollment[] @relation("StudentEnrollments")
+}
+
+model TeacherSettings {
+  id                    String   @id @default(uuid())
+  teacherId             String   @unique
+  teacher               User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  cardTaxRate           Float    @default(0)
+  defaultInstruments    String[] @default(["Violão", "Teclado", "Guitarra", "Baixo", "Bateria", "Canto"])
+  defaultPaymentMethods String[] @default(["PIX", "Cartão de Crédito", "Boleto"])
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }
 
 model Module {
@@ -101,6 +113,7 @@ model Enrollment {
   moduleId      String
   instrument    String?
   paymentMethod String?
+  installments  Int?             @default(1)
   status        EnrollmentStatus @default(PENDING_PAYMENT)
   student       User             @relation("StudentEnrollments", fields: [studentId], references: [id])
   module        Module           @relation(fields: [moduleId], references: [id])

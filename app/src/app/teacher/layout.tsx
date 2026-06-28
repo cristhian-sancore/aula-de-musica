@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import "./layout.css";
 import Link from "next/link";
-import { BookOpen, Users, LayoutDashboard, Link as LinkIcon, LogOut } from "lucide-react";
+import { BookOpen, Users, LayoutDashboard, Link as LinkIcon, LogOut, Settings } from "lucide-react";
 
 export default async function TeacherLayout({
   children,
@@ -40,6 +40,10 @@ export default async function TeacherLayout({
           <Link href="/teacher/students" className="nav-link">
             <Users size={20} />
             <span>Alunos</span>
+          </Link>
+          <Link href="/teacher/settings" className="nav-link">
+            <Settings size={20} />
+            <span>Configurações</span>
           </Link>
         </nav>
         
