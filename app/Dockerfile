@@ -61,5 +61,5 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-# Run migrations and start app
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss --skip-generate && node server.js"]
+# Run migrations, seed, and start app
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss --skip-generate && node prisma/seed.js && node server.js"]
