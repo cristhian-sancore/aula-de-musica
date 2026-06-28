@@ -53,8 +53,9 @@ export default function LinksPage() {
     try {
       const res = await fetch("/api/modules");
       if (res.ok) {
-      const data = await res.json();
-      setAvailableModules(data);
+        const data = await res.json();
+        setAvailableModules(data);
+      }
     } catch (error) {
       console.error("Erro ao buscar módulos disponíveis", error);
     }
