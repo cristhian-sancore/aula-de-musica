@@ -34,7 +34,7 @@ export default async function StudentDashboard() {
         </div>
       ) : (
         <div className="courses-grid">
-          {enrollments.map(enc => {
+          {enrollments.map((enc: any) => {
             const isLocked = enc.status !== "ACTIVE";
             return (
               <div key={enc.id} className={`course-card ${isLocked ? 'locked' : ''}`}>

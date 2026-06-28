@@ -31,7 +31,7 @@ export default async function TeacherDashboard() {
     include: { module: true, student: true }
   });
 
-  const totalRevenue = enrollments.reduce((acc, curr) => acc + curr.module.price, 0);
+  const totalRevenue = enrollments.reduce((acc: number, curr: any) => acc + curr.module.price, 0);
 
   return (
     <div className="dashboard">
