@@ -26,9 +26,7 @@ services:
 
   # 3. Plataforma / App
   app:
-    build:
-      context: ./app
-      dockerfile: Dockerfile
+    image: ghcr.io/cristhian-sancore/aula-de-musica:latest
     container_name: aula_musica_app
     ports:
       - "3000:3000"
