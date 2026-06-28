@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(req: Request, { params }: { params: { token: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ token: string }> }) {
   try {
+    const { token } = await params;
     const link = await prisma.customLink.findUnique({
       where: {
-        token: params.token,
+        token: token,
       },
       include: {
         modules: {

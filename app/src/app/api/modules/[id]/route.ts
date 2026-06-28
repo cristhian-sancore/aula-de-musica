@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -11,9 +11,11 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
+    const { id } = await params;
+
     const module = await prisma.module.findUnique({
       where: {
-        id: params.id,
+        id: id,
         teacherId: session.user.id,
       },
       include: {
@@ -32,7 +34,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -40,6 +42,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await req.json();
     const { title, description, price, lessons } = body;
 
@@ -48,7 +51,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     
     // First, verify ownership
     const existingModule = await prisma.module.findUnique({
-      where: { id: params.id, teacherId: session.user.id }
+      where: { id: id, teacherId: session.user.id }
     });
 
     if (!existingModule) {
@@ -57,12 +60,12 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
     // Delete existing lessons
     await prisma.videoLesson.deleteMany({
-      where: { moduleId: params.id }
+      where: { moduleId: id }
     });
 
     const updatedModule = await prisma.module.update({
       where: {
-        id: params.id,
+        id: id,
       },
       data: {
         title,
@@ -88,7 +91,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -96,8 +99,10 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
+    const { id } = await params;
+
     const existingModule = await prisma.module.findUnique({
-      where: { id: params.id, teacherId: session.user.id }
+      where: { id: id, teacherId: session.user.id }
     });
 
     if (!existingModule) {
@@ -106,7 +111,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
     await prisma.module.delete({
       where: {
-        id: params.id,
+        id: id,
       },
     });
 
