@@ -1,0 +1,13 @@
+/* Reuse most of teacher layout styles for consistency, just tweaking the badge */
+@import '../teacher/layout.css';
+
+.badge-student {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

@@ -74,13 +74,41 @@ export async function POST(req: Request) {
       });
     }
 
-    // 5. Update link status to USED (optional, if we want one-time links)
-    // For now, let's keep it active so the teacher can re-use it, or mark it USED if it was specific.
-    // The requirement says "como um cardápio", usually it's one link per student. 
+    // 5. Update link status to USED
     await prisma.customLink.update({
       where: { id: link.id },
       data: { status: "USED" }
     });
+
+    // 6. Direct WhatsApp Integration (Notificar Professor)
+    try {
+      const WHATSAPP_API_URL = process.env.WHATSAPP_API_URL;
+      const WHATSAPP_API_TOKEN = process.env.WHATSAPP_API_TOKEN;
+      const TEACHER_WHATSAPP = process.env.TEACHER_WHATSAPP; // O número do professor (com DDI e DDD)
+
+      if (WHATSAPP_API_URL && WHATSAPP_API_TOKEN && TEACHER_WHATSAPP) {
+        const mensagem = `*Nova Matrícula Solicitada!*\n\nO aluno *${name}* (${whatsapp}) acabou de se cadastrar através do seu link exclusivo.\n\nAcesse o painel para liberar o acesso assim que confirmar o pagamento.`;
+
+        await fetch(WHATSAPP_API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${WHATSAPP_API_TOKEN}` // Formato padrão da maioria das APIs
+          },
+          body: JSON.stringify({
+            number: TEACHER_WHATSAPP,
+            message: mensagem
+            // Dependendo da API (Flowup, Evolution, Z-API), os campos podem mudar levemente.
+            // Ex Evolution: "number", "text" (ou "message")
+          })
+        });
+        console.log("Notificação de WhatsApp enviada ao professor.");
+      } else {
+        console.warn("Variáveis de ambiente do WhatsApp não configuradas. Notificação não enviada.");
+      }
+    } catch (wpError) {
+      console.error("Falha ao enviar notificação de WhatsApp (o registro foi concluído):", wpError);
+    }
 
     return NextResponse.json({ success: true, userId: user.id }, { status: 201 });
   } catch (error) {

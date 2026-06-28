@@ -1,0 +1,192 @@
+.player-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.player-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.back-btn:hover {
+  color: var(--color-primary);
+}
+
+.module-title {
+  font-size: 1.5rem;
+  color: var(--color-text-main);
+}
+
+.player-content {
+  display: grid;
+  grid-template-columns: 2.5fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.video-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.video-container {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: #000;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.video-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.no-video {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.current-lesson-info {
+  background-color: var(--color-surface);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+
+.current-lesson-info h3 {
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+  color: var(--color-text-main);
+}
+
+.current-lesson-info p {
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.playlist-section {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  position: sticky;
+  top: 104px;
+}
+
+.playlist-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+}
+
+.playlist-header h3 {
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.playlist-header span {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.playlist {
+  list-style: none;
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+}
+
+.playlist-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.playlist-item:hover {
+  background-color: var(--color-bg);
+}
+
+.playlist-item.active {
+  background-color: rgba(218, 123, 26, 0.05);
+  border-left: 4px solid var(--color-primary);
+}
+
+.item-number {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  width: 20px;
+}
+
+.item-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-main);
+}
+
+.playlist-item.active .item-title {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.item-playing {
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.play-icon {
+  color: var(--color-text-muted);
+  opacity: 0.5;
+}
+
+.playlist-item.active .play-icon {
+  color: var(--color-primary);
+  opacity: 1;
+}
+
+@media (max-width: 1024px) {
+  .player-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .playlist-section {
+    position: static;
+  }
+  
+  .playlist {
+    max-height: 400px;
+  }
+}
