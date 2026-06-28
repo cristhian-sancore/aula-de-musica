@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     }
 
     // Verify if the selected modules are actually part of the link
-    const validModuleIds = link.modules.map(m => m.moduleId);
+    const validModuleIds = link.modules.map((m: any) => m.moduleId);
     const isValidSelection = selectedModules.every((id: string) => validModuleIds.includes(id));
 
     if (!isValidSelection) {
