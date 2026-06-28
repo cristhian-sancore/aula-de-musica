@@ -47,6 +47,13 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
+# Explicitly copy Prisma Client to avoid Next.js standalone tracing issues
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma/client ./node_modules/.prisma/client
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma/client ./node_modules/@prisma/client
+
+# Install Prisma CLI globally so we can run migrations on startup
+RUN npm install -g prisma@5.21.1
+
 USER nextjs
 
 EXPOSE 3000
@@ -55,5 +62,4 @@ ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
 # Run migrations and start app
-# Note: In a real production environment, you might want to run migrations in a separate step
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node server.js"]
