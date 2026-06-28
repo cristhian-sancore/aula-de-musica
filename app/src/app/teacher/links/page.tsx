@@ -111,8 +111,8 @@ export default function LinksPage() {
   const openNewLinkModal = () => {
     setEditingLinkId(null);
     setStudentName("");
-    setInstruments("");
-    setPaymentMethods("");
+    setInstruments("Violão, Teclado, Guitarra, Baixo, Bateria, Canto");
+    setPaymentMethods("PIX, Cartão de Crédito, Boleto");
     setSelectedModules([]);
     setShowModal(true);
   };
