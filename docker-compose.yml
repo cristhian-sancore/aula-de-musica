@@ -1,33 +1,39 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: aula_musica_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_DB: aulamusica
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   app:
-    build: 
+    build:
       context: ./app
       dockerfile: Dockerfile
     container_name: aula_musica_app
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://postgres:password123@db:5432/aula_musica?schema=public
-      - NEXTAUTH_SECRET=sua-senha-super-secreta-aqui
+      - DATABASE_URL=postgresql://admin:secretpassword@postgres:5432/aulamusica?schema=public
       - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=um_segredo_muito_forte_aqui_123
+      # Variaveis do WhatsApp:
+      - WHATSAPP_API_URL=https://api.sua-plataforma-whatsapp.com/send
+      - WHATSAPP_API_TOKEN=seu_token_aqui
+      - TEACHER_WHATSAPP=5511999999999
     depends_on:
-      - db
+      - postgres
     restart: unless-stopped
-
-  db:
-    image: postgres:15-alpine
-    container_name: aula_musica_db
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password123
-      - POSTGRES_DB=aula_musica
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
+    # Execute as migrations no início antes de subir o app:
+    command: sh -c "npx prisma migrate deploy && node server.js"
 
 volumes:
   postgres_data:
