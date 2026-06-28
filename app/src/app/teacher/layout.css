@@ -140,3 +140,55 @@
   padding: 40px;
   flex: 1;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .teacher-layout {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .sidebar-header {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 12px 16px;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .nav-link {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .sidebar-footer {
+    display: none; /* Hide footer on mobile top nav to save space, or style it differently */
+  }
+  
+  .main-content {
+    margin-left: 0;
+  }
+  
+  .topbar {
+    height: 60px;
+    padding: 0 16px;
+  }
+  
+  .content-area {
+    padding: 16px;
+  }
+}
