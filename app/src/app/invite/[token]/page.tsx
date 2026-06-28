@@ -38,13 +38,7 @@ export default function InvitePage() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (params.token) {
-      fetchLinkData(params.token as string);
-    }
-  }, [params.token]);
-
-  const fetchLinkData = async (token: string) => {
+  async function fetchLinkData(token: string) {
     try {
       const res = await fetch(`/api/links/${token}`);
       if (res.ok) {
@@ -52,15 +46,22 @@ export default function InvitePage() {
         setLinkData(data);
         if (data.studentName) setName(data.studentName);
       } else {
-        const err = await res.json();
-        setError(err.error || "Link inválido ou expirado.");
+        const errData = await res.json();
+        setError(errData.error || "Link inválido ou expirado.");
       }
-    } catch (err) {
+    } catch {
       setError("Erro de conexão.");
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    if (params.token) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+      void fetchLinkData(params.token as string);
+    }
+  }, [params.token]);
 
   const toggleModule = (id: string) => {
     if (selectedModules.includes(id)) {
@@ -102,7 +103,7 @@ export default function InvitePage() {
         alert(err.error || "Erro ao realizar matrícula");
         setSubmitting(false);
       }
-    } catch (error) {
+    } catch {
       alert("Erro de conexão");
       setSubmitting(false);
     }

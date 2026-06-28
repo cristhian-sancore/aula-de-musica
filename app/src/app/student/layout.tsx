@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import "./layout.css";
 import Link from "next/link";
-import { BookOpen, LogOut, PlayCircle } from "lucide-react";
+import { BookOpen, LogOut } from "lucide-react";
 
 export default async function StudentLayout({
   children,
@@ -39,10 +39,10 @@ export default async function StudentLayout({
               <span>Aluno</span>
             </div>
           </div>
-          <a href="/api/auth/signout" className="nav-link logout">
+          <Link href="/api/auth/signout" className="nav-link logout">
             <LogOut size={20} />
             <span>Sair</span>
-          </a>
+          </Link>
         </div>
       </aside>
       

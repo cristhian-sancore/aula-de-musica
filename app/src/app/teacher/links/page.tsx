@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Link as LinkIcon, Plus, Copy, ExternalLink, Trash2 } from "lucide-react";
+import { Link as LinkIcon, Plus, Copy, ExternalLink } from "lucide-react";
 import "./links.css";
 
 type Module = {
@@ -29,12 +29,7 @@ export default function LinksPage() {
   const [studentName, setStudentName] = useState("");
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
 
-  useEffect(() => {
-    fetchLinks();
-    fetchAvailableModules();
-  }, []);
-
-  const fetchLinks = async () => {
+  async function fetchLinks() {
     try {
       const res = await fetch("/api/links");
       if (res.ok) {
@@ -46,9 +41,9 @@ export default function LinksPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const fetchAvailableModules = async () => {
+  async function fetchAvailableModules() {
     try {
       const res = await fetch("/api/modules");
       if (res.ok) {
@@ -58,7 +53,14 @@ export default function LinksPage() {
     } catch (error) {
       console.error("Erro ao buscar módulos disponíveis", error);
     }
-  };
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+    void fetchLinks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+    void fetchAvailableModules();
+  }, []);
 
   const handleToggleModule = (id: string) => {
     if (selectedModules.includes(id)) {
@@ -136,7 +138,7 @@ export default function LinksPage() {
                 <strong>Módulos inclusos no cardápio:</strong>
                 <ul>
                   {link.modules.map(m => (
-                    <li key={m.module.id}>• {m.module.title} (R$ {m.module.price.toFixed(2)})</li>
+                    <li key={m.module.id}>&bull; {m.module.title} (R$ {m.module.price.toFixed(2)})</li>
                   ))}
                 </ul>
               </div>

@@ -51,11 +51,10 @@ export default async function TeacherLayout({
               <span>Professor</span>
             </div>
           </div>
-          {/* We'll implement logout correctly in client, but keeping visual here */}
-          <a href="/api/auth/signout" className="nav-link logout">
+          <Link href="/api/auth/signout" className="nav-link logout">
             <LogOut size={20} />
             <span>Sair</span>
-          </a>
+          </Link>
         </div>
       </aside>
       

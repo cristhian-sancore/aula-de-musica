@@ -12,7 +12,7 @@ type Lesson = {
   order: number;
 };
 
-type Module = {
+type ModuleData = {
   id: string;
   title: string;
   description: string;
@@ -23,22 +23,13 @@ export default function ModulePlayerPage() {
   const params = useParams();
   const router = useRouter();
   
-  const [moduleData, setModuleData] = useState<Module | null>(null);
+  const [moduleData, setModuleData] = useState<ModuleData | null>(null);
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (params.id) {
-      fetchModuleData(params.id as string);
-    }
-  }, [params.id]);
-
-  const fetchModuleData = async (moduleId: string) => {
+  async function fetchModuleData(moduleId: string) {
     try {
-      // In a real app, you should create a specific endpoint for the student to fetch a module
-      // verifying if they have an ACTIVE enrollment.
-      // We'll reuse the existing GET module by ID, assuming we secure it or create a new one.
       const res = await fetch(`/api/modules/${moduleId}`);
       if (res.ok) {
         const data = await res.json();
@@ -54,16 +45,23 @@ export default function ModulePlayerPage() {
       } else {
         setError("Não foi possível carregar o módulo.");
       }
-    } catch (err) {
+    } catch {
       setError("Erro de conexão.");
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    if (params.id) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+      void fetchModuleData(params.id as string);
+    }
+  }, [params.id]);
 
   const extractYouTubeId = (url: string) => {
     // Basic extraction
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : url;
   };

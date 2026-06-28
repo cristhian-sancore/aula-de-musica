@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
         price: parseFloat(price),
         teacherId: session.user.id,
         lessons: {
-          create: lessons?.map((lesson: any, index: number) => ({
+          create: lessons?.map((lesson: { title: string; videoUrl: string }, index: number) => ({
             title: lesson.title,
             videoUrl: lesson.videoUrl,
             order: index,

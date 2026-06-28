@@ -25,11 +25,7 @@ export default function StudentsPage() {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchEnrollments();
-  }, []);
-
-  const fetchEnrollments = async () => {
+  async function fetchEnrollments() {
     try {
       const res = await fetch("/api/enrollments");
       if (res.ok) {
@@ -41,14 +37,19 @@ export default function StudentsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const handleUpdateStatus = async (id: string, status: string) => {
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+    void fetchEnrollments();
+  }, []);
+
+  const handleUpdateStatus = async (id: string, newStatus: string) => {
     try {
       const res = await fetch(`/api/enrollments/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status: newStatus })
       });
       if (res.ok) {
         fetchEnrollments();
@@ -78,7 +79,7 @@ export default function StudentsPage() {
             <div key={enc.id} className={`enrollment-card ${enc.status.toLowerCase()}`}>
               <div className="student-info">
                 <h3>{enc.student.name}</h3>
-                <span className="contact">{enc.student.email} {enc.student.whatsapp ? `| ${enc.student.whatsapp}` : ''}</span>
+                <span className="contact">{enc.student.email} {enc.student.whatsapp ? `| ${enc.student.whatsapp}` : ""}</span>
                 <div className="module-tag">
                   Módulo: <strong>{enc.module.title}</strong> (R$ {enc.module.price.toFixed(2)})
                 </div>

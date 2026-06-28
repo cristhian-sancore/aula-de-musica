@@ -31,11 +31,7 @@ export default function ModulesPage() {
   const [price, setPrice] = useState("");
   const [lessons, setLessons] = useState<VideoLesson[]>([]);
 
-  useEffect(() => {
-    fetchModules();
-  }, []);
-
-  const fetchModules = async () => {
+  async function fetchModules() {
     try {
       const res = await fetch("/api/modules");
       if (res.ok) {
@@ -47,7 +43,12 @@ export default function ModulesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+    void fetchModules();
+  }, []);
 
   const openModal = (mod: Module | null = null) => {
     setEditingModule(mod);

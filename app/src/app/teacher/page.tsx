@@ -25,13 +25,12 @@ export default async function TeacherDashboard() {
   });
 
   // Calculate total revenue (simulated based on active enrollments)
-  // In a real scenario, this would sum successful payments
   const enrollments = await prisma.enrollment.findMany({
     where: { status: "ACTIVE", module: { teacherId: session.user.id } },
     include: { module: true, student: true }
   });
 
-  const totalRevenue = enrollments.reduce((acc: number, curr: any) => acc + curr.module.price, 0);
+  const totalRevenue = enrollments.reduce((acc: number, curr: { module: { price: number } }) => acc + curr.module.price, 0);
 
   return (
     <div className="dashboard">
@@ -84,7 +83,7 @@ export default async function TeacherDashboard() {
           <h2 style={{ marginBottom: '16px' }}>Últimas Matrículas</h2>
           {enrollments.length > 0 ? (
             <ul className="recent-list">
-              {enrollments.slice(0, 5).map(enc => (
+              {enrollments.slice(0, 5).map((enc: { id: string; student: { name: string }; module: { title: string } }) => (
                 <li key={enc.id} className="recent-item">
                   <div className="recent-info">
                     <strong>{enc.student.name}</strong>
@@ -103,10 +102,10 @@ export default async function TeacherDashboard() {
           <h2 style={{ marginBottom: '16px' }}>Dicas Rápidas</h2>
           <div className="tips">
             <div className="tip-item">
-              <strong>1. Crie seus módulos:</strong> Vá em "Módulos e Aulas" para montar seus pacotes de curso.
+              <strong>1. Crie seus módulos:</strong> Vá em &quot;Módulos e Aulas&quot; para montar seus pacotes de curso.
             </div>
             <div className="tip-item">
-              <strong>2. Gere cardápios:</strong> Em "Gerar Cardápio", crie links personalizados para seus alunos com os módulos desejados.
+              <strong>2. Gere cardápios:</strong> Em &quot;Gerar Cardápio&quot;, crie links personalizados para seus alunos com os módulos desejados.
             </div>
             <div className="tip-item">
               <strong>3. Receba alunos:</strong> O aluno se cadastra pelo seu link. A liberação de pagamento é manual.

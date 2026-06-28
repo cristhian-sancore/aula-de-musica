@@ -13,7 +13,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
     const { id } = await params;
 
-    const module = await prisma.module.findUnique({
+    const foundModule = await prisma.module.findUnique({
       where: {
         id: id,
         teacherId: session.user.id,
@@ -23,11 +23,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       },
     });
 
-    if (!module) {
+    if (!foundModule) {
       return NextResponse.json({ error: "Módulo não encontrado" }, { status: 404 });
     }
 
-    return NextResponse.json(module);
+    return NextResponse.json(foundModule);
   } catch (error) {
     console.error("Erro ao buscar módulo:", error);
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
@@ -72,7 +72,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         description,
         price: price ? parseFloat(price) : undefined,
         lessons: {
-          create: lessons?.map((lesson: any, index: number) => ({
+          create: lessons?.map((lesson: { title: string; videoUrl: string }, index: number) => ({
             title: lesson.title,
             videoUrl: lesson.videoUrl,
             order: index,

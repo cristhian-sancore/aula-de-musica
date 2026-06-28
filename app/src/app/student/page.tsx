@@ -5,6 +5,17 @@ import Link from "next/link";
 import { PlayCircle, Lock } from "lucide-react";
 import "./student.css";
 
+type EnrollmentWithModule = {
+  id: string;
+  status: string;
+  module: {
+    id: string;
+    title: string;
+    description: string | null;
+    lessons: { id: string }[];
+  };
+};
+
 export default async function StudentDashboard() {
   const session = await getServerSession(authOptions);
 
@@ -12,7 +23,7 @@ export default async function StudentDashboard() {
     return null;
   }
 
-  const enrollments = await prisma.enrollment.findMany({
+  const enrollments: EnrollmentWithModule[] = await prisma.enrollment.findMany({
     where: { studentId: session.user.id },
     include: {
       module: {
@@ -34,7 +45,7 @@ export default async function StudentDashboard() {
         </div>
       ) : (
         <div className="courses-grid">
-          {enrollments.map((enc: any) => {
+          {enrollments.map((enc) => {
             const isLocked = enc.status !== "ACTIVE";
             return (
               <div key={enc.id} className={`course-card ${isLocked ? 'locked' : ''}`}>
