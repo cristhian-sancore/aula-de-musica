@@ -16,7 +16,7 @@ type LinkData = {
   id: string;
   token: string;
   studentName: string;
-  teacher: { name: string };
+  teacher: { name: string; whatsapp?: string };
   instruments: string[];
   paymentMethods: string[];
   modules: { module: Module }[];
@@ -140,7 +140,7 @@ export default function InvitePage() {
           <div className="stepper-container">
             <div className={`step ${step >= 1 ? 'active' : ''}`}>
               <div className="step-circle">1</div>
-              <span>Boas Vindas</span>
+              <span>Conhecer</span>
             </div>
             <div className={`step-line ${step >= 2 ? 'active' : ''}`}></div>
             <div className={`step ${step >= 2 ? 'active' : ''}`}>
@@ -150,7 +150,7 @@ export default function InvitePage() {
             <div className={`step-line ${step >= 3 ? 'active' : ''}`}></div>
             <div className={`step ${step >= 3 ? 'active' : ''}`}>
               <div className="step-circle">3</div>
-              <span>Resumo</span>
+              <span>Matrícula</span>
             </div>
             <div className={`step-line ${step >= 4 ? 'active' : ''}`}></div>
             <div className={`step ${step >= 4 ? 'active' : ''}`}>
@@ -164,15 +164,44 @@ export default function InvitePage() {
       <main className="invite-main">
         {/* STEP 1: WELCOME */}
         {step === 1 && (
-          <div className="step-content animate-fade-in text-center">
-            <div className="welcome-icon"><Music size={48} /></div>
-            <h1 className="main-title">Olá, {linkData.studentName || "Futuro Aluno"}!</h1>
-            <p className="subtitle">O professor <strong>{linkData.teacher.name}</strong> preparou uma proposta exclusiva para a sua evolução musical.</p>
+          <div className="step-content animate-fade-in text-center welcome-step">
+            <div className="teacher-avatar">
+              {linkData.teacher.name.charAt(0).toUpperCase()}
+            </div>
             
-            <div className="action-row centered">
-              <button className="btn-primary btn-large" onClick={() => setStep(2)}>
-                Ver Módulos <ArrowRight size={20} />
+            <h1 className="welcome-name">{linkData.studentName},</h1>
+            <p className="welcome-text">
+              Preparei esta proposta especialmente para você após nossa aula experimental.
+            </p>
+            <p className="welcome-subtext">
+              Aqui você encontrará todas as informações necessárias para iniciar sua jornada musical comigo, de forma organizada, transparente e personalizada.
+            </p>
+
+            <div className="benefits-card">
+              <h3>O que você irá conquistar durante sua evolução:</h3>
+              <ul className="benefits-list">
+                <li><Check size={18} className="text-primary" /> Aprender no seu ritmo</li>
+                <li><Check size={18} className="text-primary" /> Tocar suas músicas favoritas</li>
+                <li><Check size={18} className="text-primary" /> Desenvolver disciplina e concentração</li>
+                <li><Check size={18} className="text-primary" /> Evoluir com acompanhamento individual</li>
+                <li><Check size={18} className="text-primary" /> Construir uma base musical sólida</li>
+              </ul>
+            </div>
+
+            <div className="exclusive-box">
+              <span className="exclusive-label">PROPOSTA EXCLUSIVA PREPARADA PARA:</span>
+              <strong className="exclusive-name">{linkData.studentName}</strong>
+            </div>
+            
+            <div className="action-column">
+              <button className="btn-primary btn-large btn-block" onClick={() => setStep(2)}>
+                Conhecer Meus Planos
               </button>
+              {linkData.teacher.whatsapp && (
+                <a href={`https://wa.me/${linkData.teacher.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="btn-outline btn-large btn-block btn-link">
+                  Falar com o Professor
+                </a>
+              )}
             </div>
           </div>
         )}

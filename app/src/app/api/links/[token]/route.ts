@@ -18,6 +18,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ token: s
           select: {
             name: true,
             email: true,
+            whatsapp: true,
           }
         }
       },
