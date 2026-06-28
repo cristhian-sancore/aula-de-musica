@@ -1,0 +1,118 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+
+export async function GET(req: Request, { params }: { params: { id: string } }) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || session.user.role !== "TEACHER") {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+
+    const module = await prisma.module.findUnique({
+      where: {
+        id: params.id,
+        teacherId: session.user.id,
+      },
+      include: {
+        lessons: true,
+      },
+    });
+
+    if (!module) {
+      return NextResponse.json({ error: "Módulo não encontrado" }, { status: 404 });
+    }
+
+    return NextResponse.json(module);
+  } catch (error) {
+    console.error("Erro ao buscar módulo:", error);
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
+  }
+}
+
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || session.user.role !== "TEACHER") {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { title, description, price, lessons } = body;
+
+    // A simple update approach: update the module details, and recreate the lessons
+    // For a robust production app, you might want to upsert lessons instead.
+    
+    // First, verify ownership
+    const existingModule = await prisma.module.findUnique({
+      where: { id: params.id, teacherId: session.user.id }
+    });
+
+    if (!existingModule) {
+      return NextResponse.json({ error: "Módulo não encontrado ou sem permissão" }, { status: 404 });
+    }
+
+    // Delete existing lessons
+    await prisma.videoLesson.deleteMany({
+      where: { moduleId: params.id }
+    });
+
+    const updatedModule = await prisma.module.update({
+      where: {
+        id: params.id,
+      },
+      data: {
+        title,
+        description,
+        price: price ? parseFloat(price) : undefined,
+        lessons: {
+          create: lessons?.map((lesson: any, index: number) => ({
+            title: lesson.title,
+            videoUrl: lesson.videoUrl,
+            order: index,
+          })) || [],
+        },
+      },
+      include: {
+        lessons: true,
+      },
+    });
+
+    return NextResponse.json(updatedModule);
+  } catch (error) {
+    console.error("Erro ao atualizar módulo:", error);
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || session.user.role !== "TEACHER") {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+
+    const existingModule = await prisma.module.findUnique({
+      where: { id: params.id, teacherId: session.user.id }
+    });
+
+    if (!existingModule) {
+      return NextResponse.json({ error: "Módulo não encontrado ou sem permissão" }, { status: 404 });
+    }
+
+    await prisma.module.delete({
+      where: {
+        id: params.id,
+      },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Erro ao deletar módulo:", error);
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
+  }
+}
