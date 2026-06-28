@@ -55,3 +55,35 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ token
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
   }
 }
+
+export async function PUT(req: Request, { params }: { params: Promise<{ token: string }> }) {
+  try {
+    const { token: id } = await params;
+    const body = await req.json();
+    const { studentName, moduleIds, instruments, paymentMethods } = body;
+
+    if (!moduleIds || !Array.isArray(moduleIds) || moduleIds.length === 0) {
+      return NextResponse.json({ error: "É necessário selecionar pelo menos um módulo" }, { status: 400 });
+    }
+
+    const updatedLink = await prisma.customLink.update({
+      where: { id: id },
+      data: {
+        studentName,
+        instruments: Array.isArray(instruments) ? instruments : [],
+        paymentMethods: Array.isArray(paymentMethods) ? paymentMethods : [],
+        modules: {
+          deleteMany: {}, // Delete old module relations
+          create: moduleIds.map((moduleId: string) => ({
+            moduleId: moduleId,
+          })),
+        },
+      },
+    });
+
+    return NextResponse.json(updatedLink, { status: 200 });
+  } catch (error) {
+    console.error("Erro ao editar link:", error);
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
+  }
+}

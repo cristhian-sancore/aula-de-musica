@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Link as LinkIcon, Plus, Copy, ExternalLink } from "lucide-react";
+import { Link as LinkIcon, Plus, Copy, ExternalLink, Edit } from "lucide-react";
 import "./links.css";
 
 type Module = {
@@ -26,6 +26,7 @@ export default function LinksPage() {
   const [availableModules, setAvailableModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
   
   // Form states
   const [studentName, setStudentName] = useState("");
@@ -82,8 +83,11 @@ export default function LinksPage() {
     }
 
     try {
-      const res = await fetch("/api/links", {
-        method: "POST",
+      const url = editingLinkId ? `/api/links/${editingLinkId}` : "/api/links";
+      const method = editingLinkId ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method: method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           studentName, 
@@ -94,18 +98,41 @@ export default function LinksPage() {
       });
 
       if (res.ok) {
-        setShowModal(false);
-        setStudentName("");
-        setInstruments("");
-        setPaymentMethods("");
-        setSelectedModules([]);
+        closeModal();
         fetchLinks();
       } else {
-        alert("Erro ao gerar link");
+        alert("Erro ao salvar link");
       }
     } catch (error) {
-      console.error("Erro ao gerar link", error);
+      console.error("Erro ao salvar link", error);
     }
+  };
+
+  const openNewLinkModal = () => {
+    setEditingLinkId(null);
+    setStudentName("");
+    setInstruments("");
+    setPaymentMethods("");
+    setSelectedModules([]);
+    setShowModal(true);
+  };
+
+  const openEditModal = (link: CustomLink) => {
+    setEditingLinkId(link.id);
+    setStudentName(link.studentName || "");
+    setInstruments((link.instruments || []).join(", "));
+    setPaymentMethods((link.paymentMethods || []).join(", "));
+    setSelectedModules(link.modules.map(m => m.module.id));
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setEditingLinkId(null);
+    setStudentName("");
+    setInstruments("");
+    setPaymentMethods("");
+    setSelectedModules([]);
   };
 
   const copyToClipboard = (token: string) => {
@@ -133,7 +160,7 @@ export default function LinksPage() {
     <div className="links-page">
       <div className="page-header">
         <h2>Links Personalizados</h2>
-        <button className="btn-primary" onClick={() => setShowModal(true)}>
+        <button className="btn-primary" onClick={openNewLinkModal}>
           <Plus size={18} /> Novo Link
         </button>
       </div>
@@ -191,7 +218,10 @@ export default function LinksPage() {
                   <a href={`/invite/${link.token}`} target="_blank" rel="noreferrer" className="btn-icon">
                     <ExternalLink size={18} />
                   </a>
-                  <button className="btn-icon" style={{color: '#ef4444', marginLeft: 'auto'}} onClick={() => handleDelete(link.id)}>
+                  <button className="btn-icon" style={{color: 'var(--color-primary)', marginLeft: 'auto'}} onClick={() => openEditModal(link)}>
+                    <Edit size={16} /> Editar
+                  </button>
+                  <button className="btn-icon" style={{color: '#ef4444', marginLeft: '12px'}} onClick={() => handleDelete(link.id)}>
                     Excluir
                   </button>
                 </div>
@@ -204,9 +234,9 @@ export default function LinksPage() {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h3>Gerar Novo Cardápio</h3>
+            <h3>{editingLinkId ? "Editar Link Personalizado" : "Gerar Novo Link"}</h3>
             <p style={{ color: 'var(--color-text-muted)', marginBottom: '24px' }}>
-              Selecione os módulos que deseja oferecer e crie um link exclusivo.
+              Selecione os módulos que deseja oferecer e personalize o link.
             </p>
 
             <form onSubmit={handleSubmit} className="link-form">
@@ -265,8 +295,8 @@ export default function LinksPage() {
               </div>
 
               <div className="modal-actions">
-                <button type="button" className="btn-text" onClick={() => setShowModal(false)}>Cancelar</button>
-                <button type="submit" className="btn-primary">Gerar Link</button>
+                <button type="button" className="btn-text" onClick={closeModal}>Cancelar</button>
+                <button type="submit" className="btn-primary">{editingLinkId ? "Salvar Alterações" : "Gerar Link"}</button>
               </div>
             </form>
           </div>
