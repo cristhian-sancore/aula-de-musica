@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # 1. Banco de Dados Principal (Usado pelo App e pelo Evolution)
   postgres:
     image: postgres:15-alpine
     container_name: aula_musica_db
@@ -14,6 +15,16 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  # 2. Redis (Necessário para a Evolution API)
+  redis:
+    image: redis:7-alpine
+    container_name: evolution_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+  # 3. Plataforma / App
   app:
     build:
       context: ./app
@@ -23,17 +34,47 @@ services:
       - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://admin:secretpassword@postgres:5432/aulamusica?schema=public
-      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_URL=http://localhost:3000 # Será resolvido via Cloudflare Tunnel
       - NEXTAUTH_SECRET=um_segredo_muito_forte_aqui_123
-      # Variaveis do WhatsApp:
-      - WHATSAPP_API_URL=https://api.sua-plataforma-whatsapp.com/send
-      - WHATSAPP_API_TOKEN=seu_token_aqui
-      - TEACHER_WHATSAPP=5511999999999
+      # Variaveis do WhatsApp (Apontando para a Evolution API local na própria stack)
+      - WHATSAPP_API_URL=http://evolution_api:8080/message/sendText/MinhaInstancia
+      - WHATSAPP_API_TOKEN=evolution_admin_key_segura
+      - TEACHER_WHATSAPP=5511999999999 # Coloque seu número aqui
     depends_on:
       - postgres
     restart: unless-stopped
-    # Execute as migrations no início antes de subir o app:
     command: sh -c "npx prisma migrate deploy && node server.js"
+
+  # 4. Evolution API (Motor de WhatsApp)
+  evolution_api:
+    image: atendai/evolution-api:v2.1.1
+    container_name: aula_musica_evolution
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_URL=http://localhost:8080 # Altere para o subdomínio da cloudflare se for expor a Evolution
+      - CORS_ORIGIN=*
+      - AUTH_TYPE=apikey
+      - AUTH_API_KEY=evolution_admin_key_segura # Key usada pelo App para mandar mensagem
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=postgresql://admin:secretpassword@postgres:5432/aulamusica?schema=evolution
+      - CACHE_REDIS_ENABLED=true
+      - CACHE_REDIS_URI=redis://redis:6379/1
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - evolution_instances:/evolution/instances
+
+  # 5. Cloudflare Tunnel
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: aula_musica_cloudflared
+    command: tunnel --no-autoupdate run --token eyJhIjoiNTliMjg0ZjliMjEyNDJhMzc4ZjRjMWY4OGY1YTU1YWMiLCJ0IjoiOTg1Nzk3OWItMjY1Ni00MWZhLThkMDctN2M4NDBjMTVmZDRjIiwicyI6IlpEWm1PRFZoWlRVdE5XVXlPQzAwTmpNNExUZzFPVFF0WVdZMFkyTXpPRGM1WlRZMyJ9
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+  redis_data:
+  evolution_instances:
