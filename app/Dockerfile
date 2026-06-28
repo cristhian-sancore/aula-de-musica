@@ -47,9 +47,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
-# Explicitly copy Prisma Client to avoid Next.js standalone tracing issues
+# Explicitly copy Prisma Client and bcryptjs to avoid Next.js standalone tracing issues
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma/client ./node_modules/.prisma/client
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma/client ./node_modules/@prisma/client
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/bcryptjs ./node_modules/bcryptjs
 
 # Install Prisma CLI globally so we can run migrations on startup
 RUN npm install -g prisma@5.21.1
