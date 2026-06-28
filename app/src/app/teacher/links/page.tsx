@@ -16,7 +16,6 @@ type CustomLink = {
   studentName?: string;
   status: string;
   createdAt: string;
-  createdAt: string;
   instruments?: string[];
   paymentMethods?: string[];
   modules: { module: Module }[];
