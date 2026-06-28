@@ -84,7 +84,7 @@ export async function POST(req: Request) {
     try {
       const WHATSAPP_API_URL = process.env.WHATSAPP_API_URL;
       const WHATSAPP_API_TOKEN = process.env.WHATSAPP_API_TOKEN;
-      const TEACHER_WHATSAPP = process.env.TEACHER_WHATSAPP; // O número do professor (com DDI e DDD)
+      const TEACHER_WHATSAPP = process.env.TEACHER_WHATSAPP; 
 
       if (WHATSAPP_API_URL && WHATSAPP_API_TOKEN && TEACHER_WHATSAPP) {
         const mensagem = `*Nova Matrícula Solicitada!*\n\nO aluno *${name}* (${whatsapp}) acabou de se cadastrar através do seu link exclusivo.\n\nAcesse o painel para liberar o acesso assim que confirmar o pagamento.`;
@@ -93,13 +93,13 @@ export async function POST(req: Request) {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${WHATSAPP_API_TOKEN}` // Formato padrão da maioria das APIs
+            "Authorization": `Bearer ${WHATSAPP_API_TOKEN}`,
+            "apikey": WHATSAPP_API_TOKEN // Evolution API exige "apikey"
           },
           body: JSON.stringify({
             number: TEACHER_WHATSAPP,
-            message: mensagem
-            // Dependendo da API (Flowup, Evolution, Z-API), os campos podem mudar levemente.
-            // Ex Evolution: "number", "text" (ou "message")
+            text: mensagem, // Evolution API (e a maioria das APIs) usa "text"
+            message: mensagem // Fallback caso seja outra API (como Z-API)
           })
         });
         console.log("Notificação de WhatsApp enviada ao professor.");
@@ -107,7 +107,7 @@ export async function POST(req: Request) {
         console.warn("Variáveis de ambiente do WhatsApp não configuradas. Notificação não enviada.");
       }
     } catch (wpError) {
-      console.error("Falha ao enviar notificação de WhatsApp (o registro foi concluído):", wpError);
+      console.error("Falha ao enviar notificação de WhatsApp:", wpError);
     }
 
     return NextResponse.json({ success: true, userId: user.id }, { status: 201 });
