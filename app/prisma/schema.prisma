@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  TEACHER
+  STUDENT
+}
+
+enum EnrollmentStatus {
+  PENDING_PAYMENT
+  ACTIVE
+  INACTIVE
+}
+
+enum LinkStatus {
+  ACTIVE
+  USED
+  INACTIVE
+}
+
+model User {
+  id            String       @id @default(uuid())
+  name          String
+  email         String       @unique
+  password      String
+  role          Role         @default(STUDENT)
+  whatsapp      String?      // Optional for teacher, required for student usually
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Teacher relationships
+  taughtModules Module[]     @relation("TeacherModules")
+  customLinks   CustomLink[] @relation("TeacherLinks")
+
+  // Student relationships
+  enrollments   Enrollment[] @relation("StudentEnrollments")
+}
+
+model Module {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  price       Float
+  teacherId   String
+  teacher     User         @relation("TeacherModules", fields: [teacherId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  lessons           VideoLesson[]
+  enrollments       Enrollment[]
+  customLinkModules CustomLinkModule[]
+}
+
+model VideoLesson {
+  id          String   @id @default(uuid())
+  title       String
+  videoUrl    String   // Expected to be a YouTube ID or embed URL
+  order       Int      @default(0)
+  moduleId    String
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CustomLink {
+  id          String       @id @default(uuid())
+  token       String       @unique @default(uuid()) // The unique part of the URL
+  studentName String?      // The expected student this link is for (optional, for reference)
+  teacherId   String
+  teacher     User         @relation("TeacherLinks", fields: [teacherId], references: [id])
+  status      LinkStatus   @default(ACTIVE)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  modules     CustomLinkModule[]
+}
+
+model CustomLinkModule {
+  id           String     @id @default(uuid())
+  customLinkId String
+  moduleId     String
+  customLink   CustomLink @relation(fields: [customLinkId], references: [id], onDelete: Cascade)
+  module       Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([customLinkId, moduleId])
+}
+
+model Enrollment {
+  id        String           @id @default(uuid())
+  studentId String
+  moduleId  String
+  status    EnrollmentStatus @default(PENDING_PAYMENT)
+  student   User             @relation("StudentEnrollments", fields: [studentId], references: [id])
+  module    Module           @relation(fields: [moduleId], references: [id])
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@unique([studentId, moduleId])
+}
