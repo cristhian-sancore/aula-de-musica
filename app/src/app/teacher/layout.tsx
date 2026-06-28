@@ -35,7 +35,7 @@ export default async function TeacherLayout({
           </Link>
           <Link href="/teacher/links" className="nav-link">
             <LinkIcon size={20} />
-            <span>Gerar Cardápio</span>
+            <span>Gerar Link</span>
           </Link>
           <Link href="/teacher/students" className="nav-link">
             <Users size={20} />

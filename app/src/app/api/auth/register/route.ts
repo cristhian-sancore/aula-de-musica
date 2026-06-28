@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { token, name, email, password, whatsapp, selectedModules } = body;
+    const { token, name, email, password, whatsapp, selectedModules, instrument, paymentMethod } = body;
 
     if (!token || !name || !email || !password || !selectedModules || selectedModules.length === 0) {
       return NextResponse.json({ error: "Dados incompletos" }, { status: 400 });
@@ -69,7 +69,9 @@ export async function POST(req: Request) {
         create: {
           studentId: user.id,
           moduleId: moduleId,
-          status: "PENDING_PAYMENT"
+          status: "PENDING_PAYMENT",
+          instrument: instrument || null,
+          paymentMethod: paymentMethod || null
         }
       });
     }
@@ -87,7 +89,9 @@ export async function POST(req: Request) {
       const TEACHER_WHATSAPP = process.env.TEACHER_WHATSAPP; 
 
       if (WHATSAPP_API_URL && WHATSAPP_API_TOKEN && TEACHER_WHATSAPP) {
-        const mensagem = `*Nova Matrícula Solicitada!*\n\nO aluno *${name}* (${whatsapp}) acabou de se cadastrar através do seu link exclusivo.\n\nAcesse o painel para liberar o acesso assim que confirmar o pagamento.`;
+        const instrumentText = instrument ? `\nInstrumento: ${instrument}` : '';
+        const paymentText = paymentMethod ? `\nPagamento: ${paymentMethod}` : '';
+        const mensagem = `*Nova Matrícula Solicitada!*\n\nO aluno *${name}* (${whatsapp}) acabou de se cadastrar através do seu link exclusivo.${instrumentText}${paymentText}\n\nAcesse o painel para liberar o acesso assim que confirmar o pagamento.`;
 
         await fetch(WHATSAPP_API_URL, {
           method: "POST",

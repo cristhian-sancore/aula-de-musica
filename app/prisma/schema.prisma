@@ -78,6 +78,9 @@ model CustomLink {
   status      LinkStatus   @default(ACTIVE)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  
+  instruments    String[]  @default([])
+  paymentMethods String[]  @default([])
 
   modules     CustomLinkModule[]
 }
@@ -93,14 +96,16 @@ model CustomLinkModule {
 }
 
 model Enrollment {
-  id        String           @id @default(uuid())
-  studentId String
-  moduleId  String
-  status    EnrollmentStatus @default(PENDING_PAYMENT)
-  student   User             @relation("StudentEnrollments", fields: [studentId], references: [id])
-  module    Module           @relation(fields: [moduleId], references: [id])
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  id            String           @id @default(uuid())
+  studentId     String
+  moduleId      String
+  instrument    String?
+  paymentMethod String?
+  status        EnrollmentStatus @default(PENDING_PAYMENT)
+  student       User             @relation("StudentEnrollments", fields: [studentId], references: [id])
+  module        Module           @relation(fields: [moduleId], references: [id])
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 
   @@unique([studentId, moduleId])
 }

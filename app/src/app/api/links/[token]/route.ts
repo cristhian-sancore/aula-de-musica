@@ -37,3 +37,20 @@ export async function GET(req: Request, { params }: { params: Promise<{ token: s
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request, { params }: { params: Promise<{ token: string }> }) {
+  try {
+    const { token: id } = await params;
+    // The parameter is called token in the folder structure, but we pass the ID
+    await prisma.customLink.delete({
+      where: {
+        id: id,
+      }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Erro ao excluir link:", error);
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
+  }
+}

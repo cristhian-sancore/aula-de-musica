@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import "./layout.css";
 import Link from "next/link";
-import { BookOpen, LogOut } from "lucide-react";
+import { BookOpen, LogOut, User } from "lucide-react";
 
 export default async function StudentLayout({
   children,
@@ -28,6 +28,10 @@ export default async function StudentLayout({
           <Link href="/student" className="nav-link">
             <BookOpen size={20} />
             <span>Meus Cursos</span>
+          </Link>
+          <Link href="/student/profile" className="nav-link">
+            <User size={20} />
+            <span>Minha Conta</span>
           </Link>
         </nav>
         

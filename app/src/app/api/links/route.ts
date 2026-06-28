@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { studentName, moduleIds } = body;
+    const { studentName, moduleIds, instruments, paymentMethods } = body;
 
     if (!moduleIds || !Array.isArray(moduleIds) || moduleIds.length === 0) {
       return NextResponse.json({ error: "É necessário selecionar pelo menos um módulo" }, { status: 400 });
@@ -54,6 +54,8 @@ export async function POST(req: Request) {
       data: {
         studentName,
         teacherId: session.user.id,
+        instruments: Array.isArray(instruments) ? instruments : [],
+        paymentMethods: Array.isArray(paymentMethods) ? paymentMethods : [],
         modules: {
           create: moduleIds.map((moduleId: string) => ({
             moduleId: moduleId,

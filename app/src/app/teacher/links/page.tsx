@@ -16,6 +16,9 @@ type CustomLink = {
   studentName?: string;
   status: string;
   createdAt: string;
+  createdAt: string;
+  instruments?: string[];
+  paymentMethods?: string[];
   modules: { module: Module }[];
 };
 
@@ -27,6 +30,8 @@ export default function LinksPage() {
   
   // Form states
   const [studentName, setStudentName] = useState("");
+  const [instruments, setInstruments] = useState("");
+  const [paymentMethods, setPaymentMethods] = useState("");
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
 
   async function fetchLinks() {
@@ -73,7 +78,7 @@ export default function LinksPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedModules.length === 0) {
-      alert("Selecione pelo menos um módulo para compor o cardápio.");
+      alert("Selecione pelo menos um módulo para compor o link.");
       return;
     }
 
@@ -81,12 +86,19 @@ export default function LinksPage() {
       const res = await fetch("/api/links", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ studentName, moduleIds: selectedModules }),
+        body: JSON.stringify({ 
+          studentName, 
+          moduleIds: selectedModules,
+          instruments: instruments.split(',').map(s => s.trim()).filter(Boolean),
+          paymentMethods: paymentMethods.split(',').map(s => s.trim()).filter(Boolean)
+        }),
       });
 
       if (res.ok) {
         setShowModal(false);
         setStudentName("");
+        setInstruments("");
+        setPaymentMethods("");
         setSelectedModules([]);
         fetchLinks();
       } else {
@@ -103,10 +115,25 @@ export default function LinksPage() {
     alert("Link copiado para a área de transferência!");
   };
 
+  const handleDelete = async (id: string) => {
+    if (!confirm("Tem certeza que deseja excluir este link? O aluno não poderá mais se cadastrar por ele.")) return;
+    
+    try {
+      const res = await fetch(`/api/links/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchLinks();
+      } else {
+        alert("Erro ao excluir link");
+      }
+    } catch (error) {
+      console.error("Erro", error);
+    }
+  };
+
   return (
     <div className="links-page">
       <div className="page-header">
-        <h2>Gerador de Cardápios (Links Personalizados)</h2>
+        <h2>Links Personalizados</h2>
         <button className="btn-primary" onClick={() => setShowModal(true)}>
           <Plus size={18} /> Novo Link
         </button>
@@ -135,12 +162,22 @@ export default function LinksPage() {
               </div>
 
               <div className="link-modules">
-                <strong>Módulos inclusos no cardápio:</strong>
+                <strong>Módulos inclusos no link:</strong>
                 <ul>
                   {link.modules.map(m => (
                     <li key={m.module.id}>&bull; {m.module.title} (R$ {m.module.price.toFixed(2)})</li>
                   ))}
                 </ul>
+                {(link.instruments?.length || 0) > 0 && (
+                  <p style={{marginTop: '8px', fontSize: '0.85rem', color: 'var(--color-text-muted)'}}>
+                    <strong>Instrumentos:</strong> {link.instruments!.join(", ")}
+                  </p>
+                )}
+                {(link.paymentMethods?.length || 0) > 0 && (
+                  <p style={{fontSize: '0.85rem', color: 'var(--color-text-muted)'}}>
+                    <strong>Pagamentos:</strong> {link.paymentMethods!.join(", ")}
+                  </p>
+                )}
               </div>
 
               <div className="link-actions">
@@ -155,6 +192,9 @@ export default function LinksPage() {
                   <a href={`/invite/${link.token}`} target="_blank" rel="noreferrer" className="btn-icon">
                     <ExternalLink size={18} />
                   </a>
+                  <button className="btn-icon" style={{color: '#ef4444', marginLeft: 'auto'}} onClick={() => handleDelete(link.id)}>
+                    Excluir
+                  </button>
                 </div>
               </div>
             </div>
@@ -178,6 +218,26 @@ export default function LinksPage() {
                   value={studentName} 
                   onChange={e => setStudentName(e.target.value)} 
                   placeholder="Ex: João Silva"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Instrumentos Permitidos (separados por vírgula)</label>
+                <input 
+                  className="input-field" 
+                  value={instruments} 
+                  onChange={e => setInstruments(e.target.value)} 
+                  placeholder="Ex: Violão, Bateria"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Formas de Pagamento (separadas por vírgula)</label>
+                <input 
+                  className="input-field" 
+                  value={paymentMethods} 
+                  onChange={e => setPaymentMethods(e.target.value)} 
+                  placeholder="Ex: PIX, Cartão de Crédito"
                 />
               </div>
 

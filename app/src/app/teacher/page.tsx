@@ -60,7 +60,7 @@ export default async function TeacherDashboard() {
             <LinkIcon size={24} />
           </div>
           <div className="stat-info">
-            <h3>Cardápios Ativos</h3>
+            <h3>Links Ativos</h3>
             <p className="stat-value">{activeLinks}</p>
           </div>
         </div>
@@ -105,7 +105,7 @@ export default async function TeacherDashboard() {
               <strong>1. Crie seus módulos:</strong> Vá em &quot;Módulos e Aulas&quot; para montar seus pacotes de curso.
             </div>
             <div className="tip-item">
-              <strong>2. Gere cardápios:</strong> Em &quot;Gerar Cardápio&quot;, crie links personalizados para seus alunos com os módulos desejados.
+              <strong>2. Gere links:</strong> Em &quot;Gerar Link&quot;, crie links personalizados para seus alunos com os módulos desejados.
             </div>
             <div className="tip-item">
               <strong>3. Receba alunos:</strong> O aluno se cadastra pelo seu link. A liberação de pagamento é manual.

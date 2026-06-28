@@ -17,6 +17,8 @@ type LinkData = {
   token: string;
   studentName: string;
   teacher: { name: string };
+  instruments: string[];
+  paymentMethods: string[];
   modules: { module: Module }[];
 };
 
@@ -36,6 +38,8 @@ export default function InvitePage() {
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [password, setPassword] = useState("");
+  const [selectedInstrument, setSelectedInstrument] = useState("");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   async function fetchLinkData(token: string) {
@@ -45,6 +49,8 @@ export default function InvitePage() {
         const data = await res.json();
         setLinkData(data);
         if (data.studentName) setName(data.studentName);
+        if (data.instruments?.length > 0) setSelectedInstrument(data.instruments[0]);
+        if (data.paymentMethods?.length > 0) setSelectedPaymentMethod(data.paymentMethods[0]);
       } else {
         const errData = await res.json();
         setError(errData.error || "Link inválido ou expirado.");
@@ -93,6 +99,8 @@ export default function InvitePage() {
           password,
           whatsapp,
           selectedModules,
+          instrument: selectedInstrument,
+          paymentMethod: selectedPaymentMethod,
         })
       });
 
@@ -163,7 +171,7 @@ export default function InvitePage() {
             
             <div className="action-row centered">
               <button className="btn-primary btn-large" onClick={() => setStep(2)}>
-                Ver Cardápio de Módulos <ArrowRight size={20} />
+                Ver Módulos <ArrowRight size={20} />
               </button>
             </div>
           </div>
@@ -305,6 +313,40 @@ export default function InvitePage() {
                   minLength={6}
                 />
               </div>
+
+              {linkData.instruments && linkData.instruments.length > 0 && (
+                <div className="form-group">
+                  <label>Qual instrumento você vai cursar?</label>
+                  <select 
+                    required 
+                    className="input-field"
+                    value={selectedInstrument}
+                    onChange={e => setSelectedInstrument(e.target.value)}
+                  >
+                    <option value="" disabled>Selecione um instrumento...</option>
+                    {linkData.instruments.map(inst => (
+                      <option key={inst} value={inst}>{inst}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {linkData.paymentMethods && linkData.paymentMethods.length > 0 && (
+                <div className="form-group">
+                  <label>Como prefere realizar o pagamento?</label>
+                  <select 
+                    required 
+                    className="input-field"
+                    value={selectedPaymentMethod}
+                    onChange={e => setSelectedPaymentMethod(e.target.value)}
+                  >
+                    <option value="" disabled>Selecione uma forma de pagamento...</option>
+                    {linkData.paymentMethods.map(pm => (
+                      <option key={pm} value={pm}>{pm}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="action-row space-between" style={{ marginTop: '24px' }}>
                 <button type="button" className="btn-text" onClick={() => setStep(3)}>
