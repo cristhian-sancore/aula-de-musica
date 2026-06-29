@@ -309,11 +309,30 @@ export default function InvitePage() {
                     <h3 className="plan-title">{mod.title}</h3>
                     <div className="plan-price-container">
                       {(() => {
-                        const divisor = 12; // Sempre dividir por 12, conforme solicitado pelo usuário
-                        const isMensal = mod.isMonthly || mod.title.toLowerCase().includes('mensal'); // Fallback to title check for old modules
+                        const text = `${mod.title} ${mod.description || ''}`.toLowerCase();
+                        let monthsCount = 12;
+                        
+                        if (mod.isMonthly || text.includes('mensal')) {
+                          monthsCount = 1;
+                        } else if (text.includes('bimestral')) {
+                          monthsCount = 2;
+                        } else if (text.includes('trimestral')) {
+                          monthsCount = 3;
+                        } else if (text.includes('quadrimestral')) {
+                          monthsCount = 4;
+                        } else if (text.includes('semestral')) {
+                          monthsCount = 6;
+                        } else if (text.includes('anual')) {
+                          monthsCount = 12;
+                        } else {
+                          const match = text.match(/(\d+)\s*(?:mes|meses)/);
+                          if (match && parseInt(match[1]) > 0) {
+                            monthsCount = parseInt(match[1]);
+                          }
+                        }
 
                         if (mod.price > 0) {
-                          if (isMensal) {
+                          if (monthsCount === 1) {
                             return (
                               <>
                                 <div className="plan-price-highlight" style={{ fontSize: '1.8rem' }}>
@@ -329,7 +348,7 @@ export default function InvitePage() {
                           return (
                             <>
                               <div className="plan-price-highlight">
-                                {divisor}x de R$ {(mod.price / divisor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                {monthsCount}x de R$ {(mod.price / monthsCount).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                               </div>
                               <div className="plan-price-cash">
                                 ou R$ {mod.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} à vista
