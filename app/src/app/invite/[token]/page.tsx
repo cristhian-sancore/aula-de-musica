@@ -77,11 +77,8 @@ export default function InvitePage() {
   }, [params.token]);
 
   const toggleModule = (id: string) => {
-    if (selectedModules.includes(id)) {
-      setSelectedModules(selectedModules.filter(m => m !== id));
-    } else {
-      setSelectedModules([...selectedModules, id]);
-    }
+    // Permite selecionar apenas um plano por vez
+    setSelectedModules([id]);
   };
 
   const getSelectedTotal = () => {
@@ -246,7 +243,7 @@ export default function InvitePage() {
                     </div>
                     <p className="plan-desc">{mod.description || "Acesso completo às aulas e materiais deste módulo."}</p>
                     <button className={`btn-outline ${isSelected ? 'active' : ''}`}>
-                      {isSelected ? "Remover" : "Adicionar ao Carrinho"}
+                      {isSelected ? "Plano Selecionado" : "Escolher Plano"}
                     </button>
                   </div>
                 )
