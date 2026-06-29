@@ -10,7 +10,7 @@ type TeacherSettings = {
   defaultInstruments: string[];
   defaultPaymentMethods: string[];
   platformName: string;
-  availableSlots: { day: number, time: string, capacity: number }[] | null;
+  availableSlots: { day: number, time: string, endTime?: string, capacity: number }[] | null;
 };
 
 const DAYS_OF_WEEK = [
@@ -43,9 +43,10 @@ export default function SettingsPage() {
   const [platformNameInput, setPlatformNameInput] = useState("Aula de Música");
   
   // Availability state
-  const [slots, setSlots] = useState<{ day: number, time: string, capacity: number }[]>([]);
+  const [slots, setSlots] = useState<{ day: number, time: string, endTime?: string, capacity: number }[]>([]);
   const [newSlotDay, setNewSlotDay] = useState(1);
   const [newSlotTime, setNewSlotTime] = useState("14:00");
+  const [newSlotEndTime, setNewSlotEndTime] = useState("15:00");
   const [newSlotCapacity, setNewSlotCapacity] = useState(1);
 
   useEffect(() => {
@@ -246,8 +247,12 @@ export default function SettingsPage() {
                 </select>
               </div>
               <div className="form-group" style={{ flex: 1, minWidth: '100px' }}>
-                <label>Hora</label>
+                <label>Início</label>
                 <input type="time" className="input-field" value={newSlotTime} onChange={e => setNewSlotTime(e.target.value)} />
+              </div>
+              <div className="form-group" style={{ flex: 1, minWidth: '100px' }}>
+                <label>Fim</label>
+                <input type="time" className="input-field" value={newSlotEndTime} onChange={e => setNewSlotEndTime(e.target.value)} />
               </div>
               <div className="form-group" style={{ flex: 1, minWidth: '100px' }}>
                 <label>Vagas Totais</label>
@@ -258,8 +263,8 @@ export default function SettingsPage() {
                 className="btn-secondary" 
                 style={{ height: '42px' }}
                 onClick={() => {
-                  if (newSlotTime) {
-                    setSlots(prev => [...prev, { day: newSlotDay, time: newSlotTime, capacity: newSlotCapacity }]);
+                  if (newSlotTime && newSlotEndTime) {
+                    setSlots(prev => [...prev, { day: newSlotDay, time: newSlotTime, endTime: newSlotEndTime, capacity: newSlotCapacity }]);
                   }
                 }}
               >
@@ -274,7 +279,7 @@ export default function SettingsPage() {
                 slots.sort((a, b) => a.day - b.day || a.time.localeCompare(b.time)).map((slot, index) => (
                   <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--color-bg)', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
                     <div>
-                      <strong>{DAYS_OF_WEEK[slot.day]}</strong> às {slot.time} <span style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginLeft: '8px' }}>(Capacidade: {slot.capacity} vagas)</span>
+                      <strong>{DAYS_OF_WEEK[slot.day]}</strong> das {slot.time} às {slot.endTime || '?'} <span style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginLeft: '8px' }}>(Capacidade: {slot.capacity} vagas)</span>
                     </div>
                     <button 
                       type="button" 

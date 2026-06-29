@@ -66,7 +66,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ token: s
 
         // Filter slots where count < capacity
         availableSlots = slots.filter((slot: any) => {
-          const slotKey = `${slot.day}-${slot.time}`;
+          const slotKey = slot.endTime ? `${slot.day}-${slot.time}-${slot.endTime}` : `${slot.day}-${slot.time}`;
           const currentCount = slotCounts[slotKey] || 0;
           const capacity = slot.capacity || 1;
           return currentCount < capacity;

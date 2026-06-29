@@ -109,7 +109,9 @@ export async function POST(req: Request) {
         let horarioText = "";
         if (horario) {
           const parts = horario.split("-");
-          if (parts.length === 2 && !isNaN(Number(parts[0]))) {
+          if (parts.length === 3 && !isNaN(Number(parts[0]))) {
+            horarioText = `\nHorário: ${DAYS_OF_WEEK[Number(parts[0])]} das ${parts[1]} às ${parts[2]}`;
+          } else if (parts.length === 2 && !isNaN(Number(parts[0]))) {
             horarioText = `\nHorário: ${DAYS_OF_WEEK[Number(parts[0])]} às ${parts[1]}`;
           } else {
             horarioText = `\nHorário: ${horario}`;

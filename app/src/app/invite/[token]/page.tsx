@@ -29,7 +29,7 @@ type LinkData = {
       enrollmentFee?: number;
     }
   };
-  computedAvailableSlots?: { day: number, time: string, capacity: number }[];
+  computedAvailableSlots?: { day: number, time: string, endTime?: string, capacity: number }[];
 };
 
 const DAYS_OF_WEEK = [
@@ -475,8 +475,8 @@ export default function InvitePage() {
                     >
                       <option value="" disabled>Escolha um horário...</option>
                       {linkData.computedAvailableSlots.map(slot => {
-                        const slotValue = `${slot.day}-${slot.time}`;
-                        const slotLabel = `${DAYS_OF_WEEK[slot.day]} às ${slot.time}`;
+                        const slotValue = slot.endTime ? `${slot.day}-${slot.time}-${slot.endTime}` : `${slot.day}-${slot.time}`;
+                        const slotLabel = slot.endTime ? `${DAYS_OF_WEEK[slot.day]} das ${slot.time} às ${slot.endTime}` : `${DAYS_OF_WEEK[slot.day]} às ${slot.time}`;
                         return (
                           <option key={slotValue} value={slotValue}>{slotLabel}</option>
                         );
