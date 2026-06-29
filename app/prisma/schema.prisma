@@ -67,6 +67,7 @@ model Module {
   description String?
   price       Float
   isMonthly      Boolean  @default(false)
+  durationMonths Int?     // Quantidade de meses/parcelas do plano (null = auto-detectar pelo nome)
   paymentMethods String[] @default([])
   teacherId      String
   teacher     User     @relation("TeacherModules", fields: [teacherId], references: [id])

@@ -11,6 +11,7 @@ type Module = {
   price: number;
   description: string;
   isMonthly?: boolean;
+  durationMonths?: number | null;
   paymentMethods?: string[];
 };
 
@@ -309,25 +310,27 @@ export default function InvitePage() {
                     <h3 className="plan-title">{mod.title}</h3>
                     <div className="plan-price-container">
                       {(() => {
-                        const text = `${mod.title} ${mod.description || ''}`.toLowerCase();
-                        let divisor = 12;
-
-                        if (mod.isMonthly || text.includes('mensal')) {
-                          divisor = 1;
-                        } else if (text.includes('bimestral')) {
-                          divisor = 2;
-                        } else if (text.includes('trimestral')) {
-                          divisor = 3;
-                        } else if (text.includes('quadrimestral')) {
-                          divisor = 4;
-                        } else if (text.includes('semestral')) {
-                          divisor = 6;
-                        } else if (text.includes('anual')) {
-                          divisor = 12;
+                        // Prioridade: campo durationMonths salvo no banco > detecção pelo nome
+                        let divisor: number;
+                        if (mod.durationMonths && mod.durationMonths > 0) {
+                          divisor = mod.durationMonths;
                         } else {
-                          const match = text.match(/(\d+)\s*(?:mes|meses)/);
-                          if (match && parseInt(match[1]) > 0) {
-                            divisor = parseInt(match[1]);
+                          const text = `${mod.title} ${mod.description || ''}`.toLowerCase();
+                          if (mod.isMonthly || text.includes('mensal')) {
+                            divisor = 1;
+                          } else if (text.includes('bimestral')) {
+                            divisor = 2;
+                          } else if (text.includes('trimestral')) {
+                            divisor = 3;
+                          } else if (text.includes('quadrimestral')) {
+                            divisor = 4;
+                          } else if (text.includes('semestral')) {
+                            divisor = 6;
+                          } else if (text.includes('anual')) {
+                            divisor = 12;
+                          } else {
+                            const match = text.match(/(\d+)\s*(?:mes|meses)/);
+                            divisor = (match && parseInt(match[1]) > 0) ? parseInt(match[1]) : 12;
                           }
                         }
 

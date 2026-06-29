@@ -78,9 +78,11 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     const { id } = await params;
     const body = await req.json();
-    const { title, description, price, isMonthly, lessons, paymentMethods } = body;
+    const { title, description, price, isMonthly, lessons, paymentMethods, durationMonths } = body;
 
     const formattedPaymentMethods = paymentMethods !== undefined ? (Array.isArray(paymentMethods) ? paymentMethods : (typeof paymentMethods === 'string' && paymentMethods.trim() ? paymentMethods.split(',').map((s: string) => s.trim()).filter(Boolean) : [])) : undefined;
+    const parsedDuration = durationMonths !== undefined ? (durationMonths ? parseInt(durationMonths) : null) : undefined;
+    const finalDuration = parsedDuration !== undefined ? ((parsedDuration && parsedDuration > 0) ? parsedDuration : null) : undefined;
 
     // A simple update approach: update the module details, and recreate the lessons
     // For a robust production app, you might want to upsert lessons instead.
@@ -108,6 +110,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         description,
         price: price ? parseFloat(price) : undefined,
         isMonthly: isMonthly !== undefined ? Boolean(isMonthly) : undefined,
+        durationMonths: finalDuration,
         paymentMethods: formattedPaymentMethods,
         lessons: {
           create: lessons?.map((lesson: { title: string; videoUrl: string }, index: number) => ({

@@ -17,6 +17,7 @@ type Module = {
   description: string;
   price: number;
   isMonthly?: boolean;
+  durationMonths?: number | null;
   paymentMethods?: string[];
   lessons: VideoLesson[];
 };
@@ -32,6 +33,7 @@ export default function ModulesPage() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [isMonthly, setIsMonthly] = useState(false);
+  const [durationMonths, setDurationMonths] = useState("");
   const [paymentMethods, setPaymentMethods] = useState("");
   const [lessons, setLessons] = useState<VideoLesson[]>([]);
 
@@ -61,6 +63,7 @@ export default function ModulesPage() {
       setDescription(mod.description || "");
       setPrice(mod.price.toString());
       setIsMonthly(mod.isMonthly || false);
+      setDurationMonths(mod.durationMonths ? mod.durationMonths.toString() : "");
       setPaymentMethods((mod.paymentMethods || []).join(", "));
       setLessons(mod.lessons || []);
     } else {
@@ -68,6 +71,7 @@ export default function ModulesPage() {
       setDescription("");
       setPrice("");
       setIsMonthly(false);
+      setDurationMonths("");
       setPaymentMethods("");
       setLessons([]);
     }
@@ -101,6 +105,7 @@ export default function ModulesPage() {
       description,
       price: parseFloat(price),
       isMonthly,
+      durationMonths: durationMonths ? parseInt(durationMonths) : null,
       paymentMethods: paymentMethods.split(',').map(s => s.trim()).filter(Boolean),
       lessons,
     };
@@ -228,6 +233,22 @@ export default function ModulesPage() {
                 />
                 <small style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginTop: '4px', display: 'block' }}>
                   Se deixar em branco, o módulo utilizará as formas de pagamento globais configuradas.
+                </small>
+              </div>
+
+              <div className="form-group">
+                <label>Duração / Número de Parcelas (meses)</label>
+                <input 
+                  type="number"
+                  min="1"
+                  max="60"
+                  className="input-field" 
+                  value={durationMonths} 
+                  onChange={e => setDurationMonths(e.target.value)} 
+                  placeholder="Ex: 6 para semestral, 12 para anual"
+                />
+                <small style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginTop: '4px', display: 'block' }}>
+                  Se deixar em branco, o sistema detecta automaticamente pelo nome (ex: “Semestral” = 6x, “Anual” = 12x).
                 </small>
               </div>
 
