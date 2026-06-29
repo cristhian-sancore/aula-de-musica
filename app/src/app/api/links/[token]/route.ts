@@ -17,6 +17,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ token: s
         teacher: {
           select: {
             name: true,
+            image: true,
             email: true,
             whatsapp: true,
             settings: {

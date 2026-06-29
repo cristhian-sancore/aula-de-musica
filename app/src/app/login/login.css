@@ -17,6 +17,22 @@
   border: 1px solid var(--color-border);
 }
 
+.login-logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.login-logo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-primary);
+  padding: 4px;
+  background-color: white;
+}
+
 .login-title {
   font-size: 1.75rem;
   font-weight: 700;

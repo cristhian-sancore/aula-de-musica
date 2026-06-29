@@ -21,6 +21,7 @@ type LinkData = {
   modules: { module: Module }[];
   teacher: {
     name: string;
+    image?: string | null;
     whatsapp?: string;
     settings?: {
       cardTaxRate: number;
@@ -200,7 +201,15 @@ export default function InvitePage() {
         {step === 1 && (
           <div className="step-content animate-fade-in text-center welcome-step">
             <div className="teacher-avatar">
-              {linkData.teacher.name.charAt(0).toUpperCase()}
+              {linkData.teacher.image ? (
+                <img 
+                  src={linkData.teacher.image} 
+                  alt={linkData.teacher.name} 
+                  className="teacher-avatar-img" 
+                />
+              ) : (
+                linkData.teacher.name.charAt(0).toUpperCase()
+              )}
             </div>
             
             <h1 className="welcome-name">{linkData.studentName},</h1>
