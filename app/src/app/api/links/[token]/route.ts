@@ -24,6 +24,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ token: s
               select: {
                 cardTaxRate: true,
                 enrollmentFee: true,
+                availableSlots: true,
               }
             }
           }
@@ -39,7 +40,46 @@ export async function GET(req: Request, { params }: { params: Promise<{ token: s
       return NextResponse.json({ error: "Este link foi desativado" }, { status: 403 });
     }
 
-    return NextResponse.json(link);
+    // Process available slots
+    let availableSlots: { day: number, time: string, capacity: number }[] = [];
+    
+    if (link.teacher.settings?.availableSlots) {
+      const slots = link.teacher.settings.availableSlots as any;
+      if (Array.isArray(slots)) {
+        // Fetch active enrollments for this teacher to count how many students are in each slot
+        const activeEnrollments = await prisma.enrollment.findMany({
+          where: {
+            module: { teacherId: link.teacherId },
+            status: { in: ["ACTIVE", "PENDING_PAYMENT"] },
+            horario: { not: null }
+          },
+          select: { horario: true }
+        });
+
+        // Count occurrences of each slot (Format is "day-time", e.g., "1-14:00")
+        const slotCounts: Record<string, number> = {};
+        for (const e of activeEnrollments) {
+          if (e.horario) {
+            slotCounts[e.horario] = (slotCounts[e.horario] || 0) + 1;
+          }
+        }
+
+        // Filter slots where count < capacity
+        availableSlots = slots.filter((slot: any) => {
+          const slotKey = `${slot.day}-${slot.time}`;
+          const currentCount = slotCounts[slotKey] || 0;
+          const capacity = slot.capacity || 1;
+          return currentCount < capacity;
+        });
+      }
+    }
+
+    const responseData = {
+      ...link,
+      computedAvailableSlots: availableSlots
+    };
+
+    return NextResponse.json(responseData);
   } catch (error) {
     console.error("Erro ao buscar link:", error);
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });

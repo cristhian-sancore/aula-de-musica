@@ -105,13 +105,24 @@ export async function POST(req: Request) {
         });
         const planNames = selectedModulesData.map(m => m.title).join(", ");
 
+        const DAYS_OF_WEEK = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+        let horarioText = "";
+        if (horario) {
+          const parts = horario.split("-");
+          if (parts.length === 2 && !isNaN(Number(parts[0]))) {
+            horarioText = `\nHorário: ${DAYS_OF_WEEK[Number(parts[0])]} às ${parts[1]}`;
+          } else {
+            horarioText = `\nHorário: ${horario}`;
+          }
+        }
+
         const instrumentText = instrument ? `\nInstrumento: ${instrument}` : '';
         const paymentText = paymentMethod ? `\nPagamento: ${paymentMethod}${installments ? ` em ${installments}x` : ''}` : '';
         
         const enrollmentFee = link.teacher?.settings?.enrollmentFee || 90;
         const matriculaText = enrollmentFee > 0 ? `\nTaxa de Matrícula: R$ ${enrollmentFee.toFixed(2)} (À vista via PIX/Dinheiro)` : '';
         
-        const mensagem = `*Nova Matrícula Solicitada!*\n\nO aluno *${name}* (${whatsapp}) acabou de se cadastrar através do seu link exclusivo.\n\nPlano Escolhido: *${planNames}*${matriculaText}${instrumentText}${paymentText}\n\nAcesse o painel para liberar o acesso assim que confirmar o pagamento.`;
+        const mensagem = `*Nova Matrícula Solicitada!*\n\nO aluno *${name}* (${whatsapp}) acabou de se cadastrar através do seu link exclusivo.\n\nPlano Escolhido: *${planNames}*${matriculaText}${instrumentText}${paymentText}${horarioText}\n\nAcesse o painel para liberar o acesso assim que confirmar o pagamento.`;
 
         await fetch(WHATSAPP_API_URL, {
           method: "POST",

@@ -28,8 +28,19 @@ type LinkData = {
       cardTaxRate: number;
       enrollmentFee?: number;
     }
-  }
+  };
+  computedAvailableSlots?: { day: number, time: string, capacity: number }[];
 };
+
+const DAYS_OF_WEEK = [
+  "Domingo",
+  "Segunda-feira",
+  "Terça-feira",
+  "Quarta-feira",
+  "Quinta-feira",
+  "Sexta-feira",
+  "Sábado"
+];
 
 export default function InvitePage() {
   const params = useParams();

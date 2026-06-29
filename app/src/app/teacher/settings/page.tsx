@@ -10,7 +10,18 @@ type TeacherSettings = {
   defaultInstruments: string[];
   defaultPaymentMethods: string[];
   platformName: string;
+  availableSlots: { day: number, time: string, capacity: number }[] | null;
 };
+
+const DAYS_OF_WEEK = [
+  "Domingo",
+  "Segunda-feira",
+  "Terça-feira",
+  "Quarta-feira",
+  "Quinta-feira",
+  "Sexta-feira",
+  "Sábado"
+];
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -21,6 +32,7 @@ export default function SettingsPage() {
     defaultInstruments: [],
     defaultPaymentMethods: [],
     platformName: "Aula de Música",
+    availableSlots: null,
   });
 
   // String representations for the inputs
@@ -29,6 +41,12 @@ export default function SettingsPage() {
   const [taxInput, setTaxInput] = useState("0");
   const [feeInput, setFeeInput] = useState("90.00");
   const [platformNameInput, setPlatformNameInput] = useState("Aula de Música");
+  
+  // Availability state
+  const [slots, setSlots] = useState<{ day: number, time: string, capacity: number }[]>([]);
+  const [newSlotDay, setNewSlotDay] = useState(1);
+  const [newSlotTime, setNewSlotTime] = useState("14:00");
+  const [newSlotCapacity, setNewSlotCapacity] = useState(1);
 
   useEffect(() => {
     fetchSettings();
@@ -45,6 +63,7 @@ export default function SettingsPage() {
         setTaxInput(data.cardTaxRate ? data.cardTaxRate.toString() : "0");
         setFeeInput(data.enrollmentFee !== undefined && data.enrollmentFee !== null ? data.enrollmentFee.toFixed(2) : "90.00");
         setPlatformNameInput(data.platformName || "Aula de Música");
+        setSlots(data.availableSlots || []);
       }
     } catch (error) {
       console.error("Erro ao carregar configurações", error);
@@ -76,6 +95,7 @@ export default function SettingsPage() {
           defaultInstruments: instrumentsList,
           defaultPaymentMethods: paymentsList,
           platformName: platformNameInput,
+          availableSlots: slots,
         }),
       });
 
@@ -201,12 +221,75 @@ export default function SettingsPage() {
                 rows={2}
                 value={paymentsInput}
                 onChange={(e) => setPaymentsInput(e.target.value)}
-                placeholder="Ex: PIX, Cartão de Crédito"
+                placeholder="Ex: Cartão de Crédito, PIX, Boleto"
               />
             </div>
           </div>
 
-          <div className="form-actions">
+          {/* NOVOS HORÁRIOS */}
+          <div className="settings-section">
+            <div className="section-header">
+              <Settings className="section-icon" />
+              <div>
+                <h3>Disponibilidade de Horários</h3>
+                <p>Configure os dias e horários em que você tem vaga para receber novos alunos.</p>
+              </div>
+            </div>
+
+            <div className="availability-form" style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', marginBottom: '24px', flexWrap: 'wrap' }}>
+              <div className="form-group" style={{ flex: 1, minWidth: '150px' }}>
+                <label>Dia da Semana</label>
+                <select className="input-field" value={newSlotDay} onChange={e => setNewSlotDay(Number(e.target.value))}>
+                  {DAYS_OF_WEEK.map((day, idx) => (
+                    <option key={idx} value={idx}>{day}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group" style={{ flex: 1, minWidth: '100px' }}>
+                <label>Hora</label>
+                <input type="time" className="input-field" value={newSlotTime} onChange={e => setNewSlotTime(e.target.value)} />
+              </div>
+              <div className="form-group" style={{ flex: 1, minWidth: '100px' }}>
+                <label>Vagas Totais</label>
+                <input type="number" min="1" className="input-field" value={newSlotCapacity} onChange={e => setNewSlotCapacity(Number(e.target.value))} />
+              </div>
+              <button 
+                type="button" 
+                className="btn-secondary" 
+                style={{ height: '42px' }}
+                onClick={() => {
+                  if (newSlotTime) {
+                    setSlots(prev => [...prev, { day: newSlotDay, time: newSlotTime, capacity: newSlotCapacity }]);
+                  }
+                }}
+              >
+                Adicionar Horário
+              </button>
+            </div>
+
+            <div className="slots-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {slots.length === 0 ? (
+                <p style={{ color: 'var(--color-text-muted)', fontStyle: 'italic' }}>Nenhum horário cadastrado. Os alunos poderão digitar qualquer horário livremente no cadastro.</p>
+              ) : (
+                slots.sort((a, b) => a.day - b.day || a.time.localeCompare(b.time)).map((slot, index) => (
+                  <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--color-bg)', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
+                    <div>
+                      <strong>{DAYS_OF_WEEK[slot.day]}</strong> às {slot.time} <span style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginLeft: '8px' }}>(Capacidade: {slot.capacity} vagas)</span>
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={() => setSlots(prev => prev.filter((_, i) => i !== index))}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-danger)', cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                      Remover
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="form-actions" style={{ justifyContent: "flex-end", marginTop: '24px' }}>
             <button type="submit" className="btn-primary btn-large" disabled={saving}>
               {saving ? "Salvando..." : (
                 <>
