@@ -309,11 +309,30 @@ export default function InvitePage() {
                     <h3 className="plan-title">{mod.title}</h3>
                     <div className="plan-price-container">
                       {(() => {
-                        const divisor = 12;
-                        const isMensal = mod.isMonthly || mod.title.toLowerCase().includes('mensal');
+                        const text = `${mod.title} ${mod.description || ''}`.toLowerCase();
+                        let divisor = 12;
+
+                        if (mod.isMonthly || text.includes('mensal')) {
+                          divisor = 1;
+                        } else if (text.includes('bimestral')) {
+                          divisor = 2;
+                        } else if (text.includes('trimestral')) {
+                          divisor = 3;
+                        } else if (text.includes('quadrimestral')) {
+                          divisor = 4;
+                        } else if (text.includes('semestral')) {
+                          divisor = 6;
+                        } else if (text.includes('anual')) {
+                          divisor = 12;
+                        } else {
+                          const match = text.match(/(\d+)\s*(?:mes|meses)/);
+                          if (match && parseInt(match[1]) > 0) {
+                            divisor = parseInt(match[1]);
+                          }
+                        }
 
                         if (mod.price > 0) {
-                          if (isMensal) {
+                          if (divisor === 1) {
                             return (
                               <>
                                 <div className="plan-price-highlight" style={{ fontSize: '1.8rem' }}>
