@@ -39,11 +39,13 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, description, price, isMonthly, lessons } = body;
+    const { title, description, price, isMonthly, lessons, paymentMethods } = body;
 
     if (!title || price === undefined) {
       return NextResponse.json({ error: "Título e preço são obrigatórios" }, { status: 400 });
     }
+
+    const formattedPaymentMethods = Array.isArray(paymentMethods) ? paymentMethods : (typeof paymentMethods === 'string' && paymentMethods.trim() ? paymentMethods.split(',').map((s: string) => s.trim()).filter(Boolean) : []);
 
     const newModule = await prisma.module.create({
       data: {
@@ -51,6 +53,7 @@ export async function POST(req: Request) {
         description,
         price: parseFloat(price),
         isMonthly: Boolean(isMonthly),
+        paymentMethods: formattedPaymentMethods,
         teacherId: session.user.id,
         lessons: {
           create: lessons?.map((lesson: { title: string; videoUrl: string }, index: number) => ({

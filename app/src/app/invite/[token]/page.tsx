@@ -11,6 +11,7 @@ type Module = {
   price: number;
   description: string;
   isMonthly?: boolean;
+  paymentMethods?: string[];
 };
 
 type LinkData = {
@@ -27,6 +28,7 @@ type LinkData = {
     settings?: {
       cardTaxRate: number;
       enrollmentFee?: number;
+      defaultPaymentMethods?: string[];
     }
   };
   computedAvailableSlots?: { day: number, time: string, endTime?: string, capacity: number }[];
@@ -94,6 +96,32 @@ export default function InvitePage() {
       void fetchLinkData(params.token as string);
     }
   }, [params.token]);
+
+  const getEffectivePaymentMethods = () => {
+    if (!linkData) return [];
+    if (selectedModules.length > 0) {
+      const selectedModObj = linkData.modules.find(m => m.module.id === selectedModules[0])?.module;
+      if (selectedModObj?.paymentMethods && selectedModObj.paymentMethods.length > 0) {
+        return selectedModObj.paymentMethods;
+      }
+    }
+    if (linkData.paymentMethods && linkData.paymentMethods.length > 0) {
+      return linkData.paymentMethods;
+    }
+    return linkData.teacher?.settings?.defaultPaymentMethods || ["PIX", "Cartão de Crédito", "Boleto"];
+  };
+
+  useEffect(() => {
+    if (linkData) {
+      const available = getEffectivePaymentMethods();
+      if (available.length > 0 && !available.includes(selectedPaymentMethod)) {
+        setSelectedPaymentMethod(available[0]);
+        if (!available[0].toLowerCase().includes("cartão") && !available[0].toLowerCase().includes("cartao")) {
+          setInstallments(1);
+        }
+      }
+    }
+  }, [selectedModules, linkData, selectedPaymentMethod]);
 
   const toggleModule = (id: string) => {
     // Permite selecionar apenas um plano por vez
@@ -352,7 +380,7 @@ export default function InvitePage() {
               {/* TAXA DE MATRÍCULA (IMAGE 1) - Only shown if fee > 0 */}
               {((linkData.teacher.settings?.enrollmentFee !== undefined ? linkData.teacher.settings.enrollmentFee : 90) > 0) && (
                 <div className="stylish-card enrollment-fee-card" style={{ border: '2px solid var(--color-primary)', backgroundColor: 'var(--color-bg)' }}>
-                  <span className="card-label" style={{ backgroundColor: 'var(--color-primary)', color: '#fff', padding: '4px 8px', borderRadius: '4px' }}>TAXA DE MATRÍCULA (PAGA HOJE)</span>
+                  <span className="card-label" style={{ backgroundColor: 'var(--color-primary)', color: '#fff', padding: '4px 8px', borderRadius: '4px' }}>TAXA DE MATRÍCULA (PAGAMENTO ANTECIPADO)</span>
                   <div className="fee-header">
                     <span className="fee-subtitle">Valor cobrado separadamente do plano para reserva da vaga</span>
                     <div className="plan-price-large">
@@ -534,27 +562,30 @@ export default function InvitePage() {
               {/* FORMA DE PAGAMENTO CARD */}
               <div className="stylish-card">
                 <span className="card-label">FORMA DE PAGAMENTO</span>
-                {linkData.paymentMethods && linkData.paymentMethods.length > 0 && (
-                  <div className="form-group" style={{ marginTop: '16px' }}>
-                    <label>Forma de Pagamento do Plano</label>
-                    <select 
-                      required 
-                      className="input-field"
-                      value={selectedPaymentMethod}
-                      onChange={e => {
-                        setSelectedPaymentMethod(e.target.value);
-                        if (!e.target.value.toLowerCase().includes("cartão") && !e.target.value.toLowerCase().includes("cartao")) {
-                          setInstallments(1); // Reset if not credit card
-                        }
-                      }}
-                    >
-                      <option value="" disabled>Selecione...</option>
-                      {linkData.paymentMethods.map(pm => (
-                        <option key={pm} value={pm}>{pm}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                {(() => {
+                  const effectivePMs = getEffectivePaymentMethods();
+                  return effectivePMs.length > 0 && (
+                    <div className="form-group" style={{ marginTop: '16px' }}>
+                      <label>Forma de Pagamento do Plano</label>
+                      <select 
+                        required 
+                        className="input-field"
+                        value={selectedPaymentMethod}
+                        onChange={e => {
+                          setSelectedPaymentMethod(e.target.value);
+                          if (!e.target.value.toLowerCase().includes("cartão") && !e.target.value.toLowerCase().includes("cartao")) {
+                            setInstallments(1); // Reset if not credit card
+                          }
+                        }}
+                      >
+                        <option value="" disabled>Selecione...</option>
+                        {effectivePMs.map(pm => (
+                          <option key={pm} value={pm}>{pm}</option>
+                        ))}
+                      </select>
+                    </div>
+                  );
+                })()}
 
               {(selectedPaymentMethod.toLowerCase().includes("cartão") || selectedPaymentMethod.toLowerCase().includes("cartao")) && (
                 <div className="form-group animate-fade-in">

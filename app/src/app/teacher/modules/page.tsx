@@ -17,6 +17,7 @@ type Module = {
   description: string;
   price: number;
   isMonthly?: boolean;
+  paymentMethods?: string[];
   lessons: VideoLesson[];
 };
 
@@ -31,6 +32,7 @@ export default function ModulesPage() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [isMonthly, setIsMonthly] = useState(false);
+  const [paymentMethods, setPaymentMethods] = useState("");
   const [lessons, setLessons] = useState<VideoLesson[]>([]);
 
   async function fetchModules() {
@@ -59,12 +61,14 @@ export default function ModulesPage() {
       setDescription(mod.description || "");
       setPrice(mod.price.toString());
       setIsMonthly(mod.isMonthly || false);
+      setPaymentMethods((mod.paymentMethods || []).join(", "));
       setLessons(mod.lessons || []);
     } else {
       setTitle("");
       setDescription("");
       setPrice("");
       setIsMonthly(false);
+      setPaymentMethods("");
       setLessons([]);
     }
     setShowModal(true);
@@ -97,6 +101,7 @@ export default function ModulesPage() {
       description,
       price: parseFloat(price),
       isMonthly,
+      paymentMethods: paymentMethods.split(',').map(s => s.trim()).filter(Boolean),
       lessons,
     };
 
@@ -211,6 +216,19 @@ export default function ModulesPage() {
               <div className="form-group">
                 <label>Descrição</label>
                 <textarea className="input-field" rows={3} value={description} onChange={e => setDescription(e.target.value)} />
+              </div>
+
+              <div className="form-group">
+                <label>Formas de Pagamento Específicas (separadas por vírgula)</label>
+                <input 
+                  className="input-field" 
+                  value={paymentMethods} 
+                  onChange={e => setPaymentMethods(e.target.value)} 
+                  placeholder="Ex: PIX, Boleto (deixe em branco para usar o Global)"
+                />
+                <small style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginTop: '4px', display: 'block' }}>
+                  Se deixar em branco, o módulo utilizará as formas de pagamento globais configuradas.
+                </small>
               </div>
 
               <div className="lessons-section">
