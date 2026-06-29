@@ -14,7 +14,10 @@ export async function POST(req: Request) {
     // 1. Verify the link
     const link = await prisma.customLink.findUnique({
       where: { token },
-      include: { modules: true }
+      include: { 
+        modules: true,
+        teacher: { include: { settings: true } }
+      }
     });
 
     if (!link || link.status !== "ACTIVE") {
@@ -104,7 +107,11 @@ export async function POST(req: Request) {
 
         const instrumentText = instrument ? `\nInstrumento: ${instrument}` : '';
         const paymentText = paymentMethod ? `\nPagamento: ${paymentMethod}${installments ? ` em ${installments}x` : ''}` : '';
-        const mensagem = `*Nova Matrícula Solicitada!*\n\nO aluno *${name}* (${whatsapp}) acabou de se cadastrar através do seu link exclusivo.\n\nPlano Escolhido: *${planNames}*${instrumentText}${paymentText}\n\nAcesse o painel para liberar o acesso assim que confirmar o pagamento.`;
+        
+        const enrollmentFee = link.teacher?.settings?.enrollmentFee || 90;
+        const matriculaText = enrollmentFee > 0 ? `\nTaxa de Matrícula: R$ ${enrollmentFee.toFixed(2)} (À vista via PIX/Dinheiro)` : '';
+        
+        const mensagem = `*Nova Matrícula Solicitada!*\n\nO aluno *${name}* (${whatsapp}) acabou de se cadastrar através do seu link exclusivo.\n\nPlano Escolhido: *${planNames}*${matriculaText}${instrumentText}${paymentText}\n\nAcesse o painel para liberar o acesso assim que confirmar o pagamento.`;
 
         await fetch(WHATSAPP_API_URL, {
           method: "POST",

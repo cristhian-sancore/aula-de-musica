@@ -340,17 +340,17 @@ export default function InvitePage() {
               
               {/* TAXA DE MATRÍCULA (IMAGE 1) - Only shown if fee > 0 */}
               {((linkData.teacher.settings?.enrollmentFee !== undefined ? linkData.teacher.settings.enrollmentFee : 90) > 0) && (
-                <div className="stylish-card enrollment-fee-card">
-                  <span className="card-label">MATRÍCULA</span>
+                <div className="stylish-card enrollment-fee-card" style={{ border: '2px solid var(--color-primary)', backgroundColor: 'var(--color-bg)' }}>
+                  <span className="card-label" style={{ backgroundColor: 'var(--color-primary)', color: '#fff', padding: '4px 8px', borderRadius: '4px' }}>TAXA DE MATRÍCULA (PAGA HOJE)</span>
                   <div className="fee-header">
-                    <span className="fee-subtitle">Investimento da Matrícula</span>
+                    <span className="fee-subtitle">Valor cobrado separadamente do plano para reserva da vaga</span>
                     <div className="plan-price-large">
                       R$ {(linkData.teacher.settings?.enrollmentFee !== undefined ? linkData.teacher.settings.enrollmentFee : 90).toFixed(2)}
                     </div>
                   </div>
                   
-                  <div className="fee-highlight">
-                    Pagamento exclusivamente via PIX ou Dinheiro
+                  <div className="fee-highlight" style={{ backgroundColor: 'rgba(218, 123, 26, 0.1)', padding: '12px', borderRadius: '8px', color: 'var(--color-primary)', fontWeight: 'bold' }}>
+                    Pagamento da matrícula exclusivamente à vista via PIX ou Dinheiro
                   </div>
                   
                   <h4 className="fee-includes-title">SUA MATRÍCULA INCLUI:</h4>
@@ -366,13 +366,16 @@ export default function InvitePage() {
               
               {/* PLANO ESCOLHIDO CARD */}
               <div className="stylish-card">
-                <span className="card-label">PLANO ESCOLHIDO</span>
-                <h3 className="plan-name">
+                <span className="card-label">VALOR DO PLANO ESCOLHIDO</span>
+                <h3 className="plan-name" style={{ marginTop: '8px' }}>
                   {linkData.modules.find(m => selectedModules.includes(m.module.id))?.module.title}
                 </h3>
-                <div className="plan-price-large">
+                <div className="plan-price-large" style={{ fontSize: '1.5rem' }}>
                   R$ {linkData.modules.find(m => selectedModules.includes(m.module.id))?.module.price.toFixed(2)}
                 </div>
+                <p className="section-subtitle" style={{ marginTop: '8px', marginBottom: 0 }}>
+                  (O pagamento do plano será combinado posteriormente com o professor)
+                </p>
               </div>
 
               {/* DADOS PESSOAIS */}
