@@ -309,53 +309,31 @@ export default function InvitePage() {
                     <h3 className="plan-title">{mod.title}</h3>
                     <div className="plan-price-container">
                       {(() => {
-                        const text = `${mod.title} ${mod.description || ''}`.toLowerCase();
-                        let monthsCount = 1;
-                        let periodoLabel = '';
-                        
-                        if (mod.isMonthly || text.includes('mensal')) {
-                          monthsCount = 1;
-                          periodoLabel = '';
-                        } else if (text.includes('bimestral')) {
-                          monthsCount = 2;
-                          periodoLabel = '2 meses';
-                        } else if (text.includes('trimestral')) {
-                          monthsCount = 3;
-                          periodoLabel = '3 meses';
-                        } else if (text.includes('quadrimestral')) {
-                          monthsCount = 4;
-                          periodoLabel = '4 meses';
-                        } else if (text.includes('semestral')) {
-                          monthsCount = 6;
-                          periodoLabel = '6 meses';
-                        } else if (text.includes('anual')) {
-                          monthsCount = 12;
-                          periodoLabel = '12 meses';
-                        } else {
-                          const match = text.match(/(\d+)\s*(?:mes|meses)/);
-                          if (match && parseInt(match[1]) > 0) {
-                            monthsCount = parseInt(match[1]);
-                            periodoLabel = `${monthsCount} meses`;
-                          }
-                        }
+                        const divisor = 12;
+                        const isMensal = mod.isMonthly || mod.title.toLowerCase().includes('mensal');
 
                         if (mod.price > 0) {
-                          const monthlyValue = mod.price / monthsCount;
+                          if (isMensal) {
+                            return (
+                              <>
+                                <div className="plan-price-highlight" style={{ fontSize: '1.8rem' }}>
+                                  R$ {mod.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </div>
+                                <div className="plan-price-cash">
+                                  por mês
+                                </div>
+                              </>
+                            );
+                          }
+
                           return (
                             <>
-                              <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                                <div className="plan-price-highlight" style={{ fontSize: '2rem' }}>
-                                  R$ {monthlyValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </div>
-                                <div className="plan-price-cash" style={{ fontSize: '0.95rem', fontWeight: 600 }}>
-                                  /mês
-                                </div>
+                              <div className="plan-price-highlight">
+                                {divisor}x de R$ {(mod.price / divisor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                               </div>
-                              {monthsCount > 1 && (
-                                <div className="plan-price-cash" style={{ marginTop: '4px' }}>
-                                  Total: R$ {mod.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} por {periodoLabel}
-                                </div>
-                              )}
+                              <div className="plan-price-cash">
+                                ou R$ {mod.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} à vista
+                              </div>
                             </>
                           );
                         } else {
