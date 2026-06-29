@@ -24,12 +24,9 @@ export function LoginForm({ logoUrl }: { logoUrl?: string | null }) {
     if (res?.error) {
       setError(res.error);
     } else {
-      const session = await getSession();
-      if (session?.user?.role === "STUDENT") {
-        router.push("/student");
-      } else {
-        router.push("/teacher");
-      }
+      // Força o reload da página pelo servidor para que o arquivo root (page.tsx ou login/page.tsx)
+      // cuide do redirecionamento com base no cargo do usuário (session.user.role).
+      window.location.href = "/";
     }
   };
 
