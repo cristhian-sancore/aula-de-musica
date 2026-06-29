@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, PlayCircle } from "lucide-react";
+import { ArrowLeft, PlayCircle, MessageCircle, Send } from "lucide-react";
 import "./player.css";
 
 type Lesson = {
@@ -10,6 +10,13 @@ type Lesson = {
   title: string;
   videoUrl: string;
   order: number;
+};
+
+type LessonMessage = {
+  id: string;
+  content: string;
+  reply: string | null;
+  createdAt: string;
 };
 
 type ModuleData = {
@@ -30,6 +37,9 @@ export default function ModulePlayerPage() {
   const [error, setError] = useState("");
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
   const [completing, setCompleting] = useState(false);
+  const [messages, setMessages] = useState<LessonMessage[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [sendingMessage, setSendingMessage] = useState(false);
 
   async function fetchModuleData(moduleId: string) {
     try {
@@ -71,12 +81,30 @@ export default function ModulePlayerPage() {
     }
   }
 
+  async function fetchMessages(lessonId: string) {
+    try {
+      const res = await fetch(`/api/messages?lessonId=${lessonId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setMessages(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   useEffect(() => {
     if (params.id) {
       // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
       void fetchModuleData(params.id as string);
     }
   }, [params.id]);
+
+  useEffect(() => {
+    if (currentLesson) {
+      void fetchMessages(currentLesson.id);
+    }
+  }, [currentLesson]);
 
   const extractYouTubeId = (url: string) => {
     // Basic extraction
@@ -113,6 +141,28 @@ export default function ModulePlayerPage() {
     }
   };
 
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !currentLesson) return;
+    
+    setSendingMessage(true);
+    try {
+      const res = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lessonId: currentLesson.id, content: newMessage })
+      });
+      if (res.ok) {
+        setNewMessage("");
+        void fetchMessages(currentLesson.id);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
   if (loading) return <div className="loading-state">Carregando módulo...</div>;
   if (error || !moduleData) return <div className="error-state">{error}</div>;
 
@@ -127,7 +177,8 @@ export default function ModulePlayerPage() {
 
       <div className="player-content">
         <div className="video-section">
-          <div className="video-container">
+          <div className="video-container" style={{ position: 'relative' }}>
+            <div className="yt-overlay-top"></div>
             {currentLesson ? (
               <iframe
                 src={`https://www.youtube.com/embed/${extractYouTubeId(currentLesson.videoUrl)}?modestbranding=1&rel=0&showinfo=0`}
@@ -139,6 +190,7 @@ export default function ModulePlayerPage() {
             ) : (
               <div className="no-video">Nenhuma aula cadastrada neste módulo.</div>
             )}
+            <div className="yt-overlay-bottom"></div>
           </div>
           
           {currentLesson && (
@@ -146,7 +198,6 @@ export default function ModulePlayerPage() {
               <div className="current-lesson-header">
                 <div>
                   <h3>{currentLesson.title}</h3>
-                  <p>{moduleData.description}</p>
                 </div>
                 <button 
                   className={`btn-complete ${completedLessons.includes(currentLesson.id) ? 'completed' : ''}`}
@@ -155,6 +206,50 @@ export default function ModulePlayerPage() {
                 >
                   {completedLessons.includes(currentLesson.id) ? "✓ Aula Concluída" : "Marcar como Concluída"}
                 </button>
+              </div>
+            </div>
+          )}
+
+          {currentLesson && (
+            <div className="messages-section">
+              <div className="messages-header">
+                <MessageCircle size={20} />
+                <h3>Tira-Dúvidas</h3>
+              </div>
+              
+              <form onSubmit={handleSendMessage} className="message-form">
+                <input
+                  type="text"
+                  placeholder="Escreva sua dúvida sobre esta aula..."
+                  value={newMessage}
+                  onChange={e => setNewMessage(e.target.value)}
+                  className="input-field"
+                  disabled={sendingMessage}
+                />
+                <button type="submit" className="btn-primary" disabled={sendingMessage || !newMessage.trim()}>
+                  <Send size={16} /> Enviar
+                </button>
+              </form>
+
+              <div className="messages-list">
+                {messages.length === 0 ? (
+                  <p className="no-messages">Você ainda não enviou nenhuma dúvida nesta aula.</p>
+                ) : (
+                  messages.map(msg => (
+                    <div key={msg.id} className="message-card">
+                      <div className="message-student">
+                        <span className="msg-label">Sua Dúvida</span>
+                        <p>{msg.content}</p>
+                      </div>
+                      {msg.reply && (
+                        <div className="message-teacher">
+                          <span className="msg-label">Resposta do Professor</span>
+                          <p>{msg.reply}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}

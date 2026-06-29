@@ -1,0 +1,156 @@
+.filter-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 12px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.tab-btn:hover {
+  background-color: var(--color-surface);
+  color: var(--color-text-main);
+}
+
+.tab-btn.active {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.messages-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.message-card-admin {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.msg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.student-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.student-info strong {
+  font-size: 1.1rem;
+  color: var(--color-text-main);
+}
+
+.student-info span {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.lesson-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.lesson-info .badge {
+  background-color: rgba(218, 123, 26, 0.1);
+  color: var(--color-primary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.lesson-name {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.msg-content {
+  margin-bottom: 20px;
+}
+
+.msg-content p {
+  color: var(--color-text-main);
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.msg-date {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.msg-reply-action {
+  background-color: var(--color-bg);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.reply-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reply-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.msg-reply-done {
+  background-color: rgba(16, 185, 129, 0.05);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border-left: 4px solid #10b981;
+}
+
+.msg-reply-done strong {
+  display: block;
+  color: #10b981;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.msg-reply-done p {
+  color: var(--color-text-main);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 0;
+  color: var(--color-text-muted);
+}
+
+.empty-icon {
+  margin-bottom: 16px;
+  color: #10b981;
+  opacity: 0.5;
+}

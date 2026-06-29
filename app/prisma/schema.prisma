@@ -44,6 +44,7 @@ model User {
   // Student relationships
   enrollments Enrollment[]     @relation("StudentEnrollments")
   progresses  LessonProgress[] @relation("StudentProgress")
+  messages    LessonMessage[]  @relation("StudentMessages")
 }
 
 model TeacherSettings {
@@ -86,6 +87,7 @@ model VideoLesson {
   updatedAt DateTime @updatedAt
 
   progresses LessonProgress[]
+  messages   LessonMessage[]
 }
 
 model LessonProgress {
@@ -98,6 +100,19 @@ model LessonProgress {
   lesson  VideoLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, lessonId])
+}
+
+model LessonMessage {
+  id        String    @id @default(uuid())
+  studentId String
+  lessonId  String
+  content   String
+  reply     String?
+  createdAt DateTime  @default(now())
+  repliedAt DateTime?
+
+  student User        @relation("StudentMessages", fields: [studentId], references: [id], onDelete: Cascade)
+  lesson  VideoLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 }
 
 model CustomLink {
