@@ -307,19 +307,34 @@ export default function InvitePage() {
         {/* STEP 4: REGISTRATION */}
         {step === 4 && (
           <div className="step-content animate-fade-in">
-            <h2 className="section-title">Solicitar Reserva da Minha Vaga</h2>
-            <p className="section-subtitle">Após receber sua solicitação, o professor entrará em contato para alinhar os detalhes e o pagamento.</p>
+            <h2 className="section-title">Preencha seus Dados</h2>
+            <p className="section-subtitle">Para finalizar a reserva da sua vaga, informe seus dados abaixo.</p>
             
-            <form onSubmit={handleSubmit} className="registration-form">
-              <div className="form-group">
-                <label>Nome Completo</label>
-                <input 
-                  required 
-                  className="input-field" 
-                  value={name} 
-                  onChange={e => setName(e.target.value)} 
-                />
+            <form onSubmit={handleSubmit} className="registration-form-container">
+              
+              {/* PLANO ESCOLHIDO CARD */}
+              <div className="stylish-card">
+                <span className="card-label">PLANO ESCOLHIDO</span>
+                <h3 className="plan-name">
+                  {linkData.modules.find(m => selectedModules.includes(m.module.id))?.module.title}
+                </h3>
+                <div className="plan-price-large">
+                  R$ {linkData.modules.find(m => selectedModules.includes(m.module.id))?.module.price.toFixed(2)}
+                </div>
               </div>
+
+              {/* DADOS PESSOAIS */}
+              <div className="stylish-card">
+                <span className="card-label">DADOS PESSOAIS</span>
+                <div className="form-group" style={{ marginTop: '16px' }}>
+                  <label>Nome Completo</label>
+                  <input 
+                    required 
+                    className="input-field" 
+                    value={name} 
+                    onChange={e => setName(e.target.value)} 
+                  />
+                </div>
 
               <div className="form-group">
                 <label>E-mail</label>
@@ -373,28 +388,32 @@ export default function InvitePage() {
                   </select>
                 </div>
               )}
+              </div>
 
-              {linkData.paymentMethods && linkData.paymentMethods.length > 0 && (
-                <div className="form-group">
-                  <label>Como prefere realizar o pagamento?</label>
-                  <select 
-                    required 
-                    className="input-field"
-                    value={selectedPaymentMethod}
-                    onChange={e => {
-                      setSelectedPaymentMethod(e.target.value);
-                      if (!e.target.value.toLowerCase().includes("cartão") && !e.target.value.toLowerCase().includes("cartao")) {
-                        setInstallments(1); // Reset if not credit card
-                      }
-                    }}
-                  >
-                    <option value="" disabled>Selecione uma forma de pagamento...</option>
-                    {linkData.paymentMethods.map(pm => (
-                      <option key={pm} value={pm}>{pm}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
+              {/* FORMA DE PAGAMENTO CARD */}
+              <div className="stylish-card">
+                <span className="card-label">FORMA DE PAGAMENTO</span>
+                {linkData.paymentMethods && linkData.paymentMethods.length > 0 && (
+                  <div className="form-group" style={{ marginTop: '16px' }}>
+                    <label>Forma de Pagamento do Plano</label>
+                    <select 
+                      required 
+                      className="input-field"
+                      value={selectedPaymentMethod}
+                      onChange={e => {
+                        setSelectedPaymentMethod(e.target.value);
+                        if (!e.target.value.toLowerCase().includes("cartão") && !e.target.value.toLowerCase().includes("cartao")) {
+                          setInstallments(1); // Reset if not credit card
+                        }
+                      }}
+                    >
+                      <option value="" disabled>Selecione...</option>
+                      {linkData.paymentMethods.map(pm => (
+                        <option key={pm} value={pm}>{pm}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
               {(selectedPaymentMethod.toLowerCase().includes("cartão") || selectedPaymentMethod.toLowerCase().includes("cartao")) && (
                 <div className="form-group animate-fade-in">
@@ -420,16 +439,19 @@ export default function InvitePage() {
                 </div>
               )}
 
-              <div className="summary-total" style={{ marginTop: '24px', padding: '16px', background: 'var(--color-surface)', borderRadius: 'var(--radius-md)' }}>
-                <span>Valor Final da Matrícula</span>
-                <div style={{ textAlign: 'right' }}>
-                  <strong style={{ fontSize: '1.25rem' }}>R$ {getSelectedTotal().toFixed(2)}</strong>
-                  {(selectedPaymentMethod.toLowerCase().includes("cartão") || selectedPaymentMethod.toLowerCase().includes("cartao")) && installments > 1 && (
-                    <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
-                      {installments}x de R$ {(getSelectedTotal() / installments).toFixed(2)}
-                    </div>
-                  )}
+              {selectedPaymentMethod && (
+                <div className="summary-total" style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--color-border)' }}>
+                  <span>Valor Final da Matrícula</span>
+                  <div style={{ textAlign: 'right' }}>
+                    <strong style={{ fontSize: '1.25rem' }}>R$ {getSelectedTotal().toFixed(2)}</strong>
+                    {(selectedPaymentMethod.toLowerCase().includes("cartão") || selectedPaymentMethod.toLowerCase().includes("cartao")) && installments > 1 && (
+                      <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
+                        {installments}x de R$ {(getSelectedTotal() / installments).toFixed(2)}
+                      </div>
+                    )}
+                  </div>
                 </div>
+              )}
               </div>
 
               <div className="action-row space-between" style={{ marginTop: '24px' }}>
