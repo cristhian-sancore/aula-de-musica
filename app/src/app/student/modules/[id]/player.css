@@ -86,6 +86,41 @@
   line-height: 1.6;
 }
 
+.current-lesson-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.btn-complete {
+  padding: 10px 16px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-complete:hover {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.btn-complete.completed {
+  background-color: #10b981; /* Green */
+  border-color: #10b981;
+  color: #fff;
+}
+
+.btn-complete.completed:hover {
+  background-color: #059669;
+  border-color: #059669;
+}
+
 .playlist-section {
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
@@ -134,6 +169,19 @@
 .playlist-item.active {
   background-color: rgba(218, 123, 26, 0.05);
   border-left: 4px solid var(--color-primary);
+}
+
+.playlist-item.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.playlist-item.locked:hover {
+  background-color: transparent;
+}
+
+.playlist-item.completed .item-title {
+  color: #10b981;
 }
 
 .item-number {

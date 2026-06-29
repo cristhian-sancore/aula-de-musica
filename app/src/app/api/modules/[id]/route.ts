@@ -38,6 +38,23 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         where: { id: id },
         include: { lessons: true },
       });
+
+      // Get completed lessons for this student in this module
+      const completedProgress = await prisma.lessonProgress.findMany({
+        where: {
+          studentId: session.user.id,
+          lesson: { moduleId: id }
+        },
+        select: { lessonId: true }
+      });
+
+      const completedLessonIds = completedProgress.map(p => p.lessonId);
+      
+      // Inject completedLessonIds into the module object so the frontend knows
+      return NextResponse.json({
+        ...foundModule,
+        completedLessonIds
+      });
     }
 
     if (!foundModule) {

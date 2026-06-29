@@ -17,6 +17,7 @@ type ModuleData = {
   title: string;
   description: string;
   lessons: Lesson[];
+  completedLessonIds?: string[]; // Added this to store completed lessons
 };
 
 export default function ModulePlayerPage() {
@@ -27,6 +28,8 @@ export default function ModulePlayerPage() {
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [completedLessons, setCompletedLessons] = useState<string[]>([]);
+  const [completing, setCompleting] = useState(false);
 
   async function fetchModuleData(moduleId: string) {
     try {
@@ -39,8 +42,24 @@ export default function ModulePlayerPage() {
         data.lessons = sortedLessons;
 
         setModuleData(data);
+        if (data.completedLessonIds) {
+          setCompletedLessons(data.completedLessonIds);
+        }
+
         if (sortedLessons.length > 0) {
-          setCurrentLesson(sortedLessons[0]);
+          // Find the first lesson that is not completed to be the current lesson
+          // Or the last one if all are completed
+          let nextLesson = sortedLessons[0];
+          if (data.completedLessonIds && data.completedLessonIds.length > 0) {
+            // @ts-ignore - data.completedLessonIds type check
+            const firstUncompleted = sortedLessons.find((l: Lesson) => !data.completedLessonIds.includes(l.id));
+            if (firstUncompleted) {
+              nextLesson = firstUncompleted;
+            } else {
+              nextLesson = sortedLessons[sortedLessons.length - 1];
+            }
+          }
+          setCurrentLesson(nextLesson);
         }
       } else {
         setError("Não foi possível carregar o módulo.");
@@ -64,6 +83,34 @@ export default function ModulePlayerPage() {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : url;
+  };
+
+  const handleToggleComplete = async (lessonId: string, isCurrentlyCompleted: boolean) => {
+    setCompleting(true);
+    try {
+      const res = await fetch('/api/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lessonId, completed: !isCurrentlyCompleted })
+      });
+      if (res.ok) {
+        if (isCurrentlyCompleted) {
+          setCompletedLessons(prev => prev.filter(id => id !== lessonId));
+        } else {
+          setCompletedLessons(prev => [...prev, lessonId]);
+          
+          // Auto-advance to next lesson if available
+          const currentIndex = moduleData?.lessons.findIndex(l => l.id === lessonId) ?? -1;
+          if (moduleData && currentIndex !== -1 && currentIndex < moduleData.lessons.length - 1) {
+            setCurrentLesson(moduleData.lessons[currentIndex + 1]);
+          }
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setCompleting(false);
+    }
   };
 
   if (loading) return <div className="loading-state">Carregando módulo...</div>;
@@ -96,8 +143,19 @@ export default function ModulePlayerPage() {
           
           {currentLesson && (
             <div className="current-lesson-info">
-              <h3>{currentLesson.title}</h3>
-              <p>{moduleData.description}</p>
+              <div className="current-lesson-header">
+                <div>
+                  <h3>{currentLesson.title}</h3>
+                  <p>{moduleData.description}</p>
+                </div>
+                <button 
+                  className={`btn-complete ${completedLessons.includes(currentLesson.id) ? 'completed' : ''}`}
+                  onClick={() => handleToggleComplete(currentLesson.id, completedLessons.includes(currentLesson.id))}
+                  disabled={completing}
+                >
+                  {completedLessons.includes(currentLesson.id) ? "✓ Aula Concluída" : "Marcar como Concluída"}
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -109,22 +167,33 @@ export default function ModulePlayerPage() {
           </div>
           
           <ul className="playlist">
-            {moduleData.lessons.map((lesson, idx) => (
-              <li 
-                key={lesson.id}
-                className={`playlist-item ${currentLesson?.id === lesson.id ? 'active' : ''}`}
-                onClick={() => setCurrentLesson(lesson)}
-              >
-                <div className="item-number">{idx + 1}</div>
-                <div className="item-details">
-                  <span className="item-title">{lesson.title}</span>
-                  {currentLesson?.id === lesson.id && (
-                    <span className="item-playing">Reproduzindo...</span>
-                  )}
-                </div>
-                <PlayCircle size={18} className="play-icon" />
-              </li>
-            ))}
+            {moduleData.lessons.map((lesson, idx) => {
+              const isCompleted = completedLessons.includes(lesson.id);
+              // A lesson is locked if the PREVIOUS lesson exists and is NOT completed
+              const isLocked = idx > 0 && !completedLessons.includes(moduleData.lessons[idx - 1].id);
+              const isActive = currentLesson?.id === lesson.id;
+
+              return (
+                <li 
+                  key={lesson.id}
+                  className={`playlist-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}`}
+                  onClick={() => {
+                    if (!isLocked) setCurrentLesson(lesson);
+                  }}
+                >
+                  <div className="item-number">
+                    {isCompleted ? "✓" : (isLocked ? "🔒" : idx + 1)}
+                  </div>
+                  <div className="item-details">
+                    <span className="item-title">{lesson.title}</span>
+                    {isActive && (
+                      <span className="item-playing">Reproduzindo...</span>
+                    )}
+                  </div>
+                  {!isLocked && <PlayCircle size={18} className="play-icon" />}
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
