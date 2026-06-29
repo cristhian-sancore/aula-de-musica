@@ -7,21 +7,38 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "TEACHER") {
+    if (!session || (session.user.role !== "TEACHER" && session.user.role !== "STUDENT")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
     const { id } = await params;
 
-    const foundModule = await prisma.module.findUnique({
-      where: {
-        id: id,
-        teacherId: session.user.id,
-      },
-      include: {
-        lessons: true,
-      },
-    });
+    let foundModule;
+
+    if (session.user.role === "TEACHER") {
+      foundModule = await prisma.module.findUnique({
+        where: { id: id, teacherId: session.user.id },
+        include: { lessons: true },
+      });
+    } else if (session.user.role === "STUDENT") {
+      // Check if student is enrolled and active
+      const enrollment = await prisma.enrollment.findFirst({
+        where: {
+          studentId: session.user.id,
+          moduleId: id,
+          status: "ACTIVE" // Only ACTIVE students can view content
+        }
+      });
+
+      if (!enrollment) {
+        return NextResponse.json({ error: "Acesso não autorizado ou bloqueado" }, { status: 403 });
+      }
+
+      foundModule = await prisma.module.findUnique({
+        where: { id: id },
+        include: { lessons: true },
+      });
+    }
 
     if (!foundModule) {
       return NextResponse.json({ error: "Módulo não encontrado" }, { status: 404 });
