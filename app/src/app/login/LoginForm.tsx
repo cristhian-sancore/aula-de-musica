@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import "./login.css";
@@ -24,7 +24,12 @@ export function LoginForm({ logoUrl }: { logoUrl?: string | null }) {
     if (res?.error) {
       setError(res.error);
     } else {
-      router.push("/teacher"); // Or dynamically route based on role later
+      const session = await getSession();
+      if (session?.user?.role === "STUDENT") {
+        router.push("/student");
+      } else {
+        router.push("/teacher");
+      }
     }
   };
 
