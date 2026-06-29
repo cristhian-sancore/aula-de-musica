@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, description, price, isMonthly, lessons, paymentMethods, durationMonths } = body;
+    const { title, description, price, isMonthly, lessons, paymentMethods, durationMonths, showAsMonthly } = body;
 
     if (!title || price === undefined) {
       return NextResponse.json({ error: "Título e preço são obrigatórios" }, { status: 400 });

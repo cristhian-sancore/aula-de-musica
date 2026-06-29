@@ -10,6 +10,7 @@ type TeacherSettings = {
   defaultInstruments: string[];
   defaultPaymentMethods: string[];
   platformName: string;
+  showPriceAsMonthly: boolean;
   availableSlots: { day: number, time: string, endTime?: string, capacity: number }[] | null;
 };
 
@@ -32,6 +33,7 @@ export default function SettingsPage() {
     defaultInstruments: [],
     defaultPaymentMethods: [],
     platformName: "Aula de Música",
+    showPriceAsMonthly: false,
     availableSlots: null,
   });
 
@@ -41,6 +43,7 @@ export default function SettingsPage() {
   const [taxInput, setTaxInput] = useState("0");
   const [feeInput, setFeeInput] = useState("90.00");
   const [platformNameInput, setPlatformNameInput] = useState("Aula de Música");
+  const [showPriceAsMonthly, setShowPriceAsMonthly] = useState(false);
   
   // Availability state
   const [slots, setSlots] = useState<{ day: number, time: string, endTime?: string, capacity: number }[]>([]);
@@ -64,6 +67,7 @@ export default function SettingsPage() {
         setTaxInput(data.cardTaxRate ? data.cardTaxRate.toString() : "0");
         setFeeInput(data.enrollmentFee !== undefined && data.enrollmentFee !== null ? data.enrollmentFee.toFixed(2) : "90.00");
         setPlatformNameInput(data.platformName || "Aula de Música");
+        setShowPriceAsMonthly(data.showPriceAsMonthly || false);
         setSlots(data.availableSlots || []);
       }
     } catch (error) {
@@ -96,6 +100,7 @@ export default function SettingsPage() {
           defaultInstruments: instrumentsList,
           defaultPaymentMethods: paymentsList,
           platformName: platformNameInput,
+          showPriceAsMonthly,
           availableSlots: slots,
         }),
       });
@@ -145,6 +150,23 @@ export default function SettingsPage() {
               />
               <small className="help-text">Este nome aparecerá na aba do navegador e nos links compartilhados.</small>
             </div>
+
+            <div className="form-group" style={{ marginTop: '20px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={showPriceAsMonthly}
+                  onChange={e => setShowPriceAsMonthly(e.target.checked)}
+                  style={{ width: '18px', height: '18px', accentColor: 'var(--color-primary)', cursor: 'pointer' }}
+                />
+                <span>Exibir preço dos planos como <strong>R$ X/mês</strong> (em vez de <strong>Nx de R$ X</strong>)</span>
+              </label>
+              <small className="help-text" style={{ marginTop: '8px', display: 'block' }}>
+                Quando ativo: <em>R$ 249,90/mês</em> + Total: R$ 1.499,40 por 6 meses &nbsp;|
+                Quando desativado: <em>6x de R$ 249,90</em> + ou R$ 1.499,40 à vista
+              </small>
+            </div>
+
           </div>
 
           <div className="settings-section">

@@ -30,6 +30,7 @@ type LinkData = {
       cardTaxRate: number;
       enrollmentFee?: number;
       defaultPaymentMethods?: string[];
+      showPriceAsMonthly?: boolean;
     }
   };
   computedAvailableSlots?: { day: number, time: string, endTime?: string, capacity: number }[];
@@ -334,20 +335,40 @@ export default function InvitePage() {
                           }
                         }
 
+                        const showMonthly = linkData.teacher.settings?.showPriceAsMonthly || false;
+
                         if (mod.price > 0) {
                           if (divisor === 1) {
+                            // plano mensal - mesmo visual nos dois modos
                             return (
                               <>
                                 <div className="plan-price-highlight" style={{ fontSize: '1.8rem' }}>
                                   R$ {mod.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </div>
-                                <div className="plan-price-cash">
-                                  por mês
+                                <div className="plan-price-cash">por mês</div>
+                              </>
+                            );
+                          }
+
+                          if (showMonthly) {
+                            // Modo R$ X/mês
+                            const periodoLabel = `${divisor} ${divisor === 1 ? 'mês' : 'meses'}`;
+                            return (
+                              <>
+                                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                                  <div className="plan-price-highlight" style={{ fontSize: '2rem' }}>
+                                    R$ {(mod.price / divisor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  </div>
+                                  <div className="plan-price-cash" style={{ fontSize: '0.95rem', fontWeight: 600 }}>/mês</div>
+                                </div>
+                                <div className="plan-price-cash" style={{ marginTop: '4px' }}>
+                                  Total: R$ {mod.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} por {periodoLabel}
                                 </div>
                               </>
                             );
                           }
 
+                          // Modo padrão: Nx de R$ X
                           return (
                             <>
                               <div className="plan-price-highlight">
@@ -360,9 +381,7 @@ export default function InvitePage() {
                           );
                         } else {
                           return (
-                            <div className="plan-price-highlight">
-                              Grátis
-                            </div>
+                            <div className="plan-price-highlight">Grátis</div>
                           );
                         }
                       })()}
