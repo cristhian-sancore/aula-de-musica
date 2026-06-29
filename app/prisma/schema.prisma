@@ -32,6 +32,7 @@ model User {
   password      String
   role          Role         @default(STUDENT)
   whatsapp      String?      // Optional for teacher, required for student usually
+  image         String?      @db.Text // Profile picture URL or Base64
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 

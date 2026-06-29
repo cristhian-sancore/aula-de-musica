@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import "./layout.css";
 import Link from "next/link";
-import { BookOpen, Users, LayoutDashboard, Link as LinkIcon, LogOut, Settings } from "lucide-react";
+import { BookOpen, Users, LayoutDashboard, Link as LinkIcon, LogOut, Settings, User } from "lucide-react";
 
 export default async function TeacherLayout({
   children,
@@ -41,6 +41,10 @@ export default async function TeacherLayout({
             <Users size={20} />
             <span>Alunos</span>
           </Link>
+          <Link href="/teacher/profile" className="nav-link">
+            <User size={20} />
+            <span>Meu Perfil</span>
+          </Link>
           <Link href="/teacher/settings" className="nav-link">
             <Settings size={20} />
             <span>Configurações</span>
@@ -49,7 +53,14 @@ export default async function TeacherLayout({
         
         <div className="sidebar-footer">
           <div className="user-info">
-            <div className="avatar">{session.user.name?.[0] || "P"}</div>
+            <div className="avatar">
+              {/* @ts-ignore - custom session type may not have image typed yet */}
+              {session.user.image ? (
+                <img src={session.user.image} alt={session.user.name || "Avatar"} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
+              ) : (
+                session.user.name?.[0] || "P"
+              )}
+            </div>
             <div className="details">
               <strong>{session.user.name}</strong>
               <span>Professor</span>

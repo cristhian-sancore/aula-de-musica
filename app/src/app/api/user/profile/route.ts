@@ -11,7 +11,7 @@ export async function GET(req: Request) {
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { name: true, whatsapp: true, email: true }
+      select: { name: true, whatsapp: true, email: true, image: true }
     });
 
     if (!user) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
@@ -27,9 +27,9 @@ export async function PUT(req: Request) {
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
     const body = await req.json();
-    const { name, whatsapp, newPassword } = body;
+    const { name, whatsapp, email, image, newPassword } = body;
 
-    const dataToUpdate: any = { name, whatsapp };
+    const dataToUpdate: any = { name, whatsapp, email, image };
 
     if (newPassword) {
       if (newPassword.length < 6) {
