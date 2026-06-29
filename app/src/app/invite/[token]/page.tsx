@@ -464,14 +464,35 @@ export default function InvitePage() {
                 </div>
               )}
 
-                <div className="form-group">
-                  <label>Horário desejado</label>
-                  <input 
-                    className="input-field" 
-                    value={horario} 
-                    onChange={e => setHorario(e.target.value)} 
-                  />
-                </div>
+                {linkData.computedAvailableSlots && linkData.computedAvailableSlots.length > 0 ? (
+                  <div className="form-group">
+                    <label>Horário da Aula</label>
+                    <select 
+                      required 
+                      className="input-field"
+                      value={horario}
+                      onChange={e => setHorario(e.target.value)}
+                    >
+                      <option value="" disabled>Escolha um horário...</option>
+                      {linkData.computedAvailableSlots.map(slot => {
+                        const slotValue = `${slot.day}-${slot.time}`;
+                        const slotLabel = `${DAYS_OF_WEEK[slot.day]} às ${slot.time}`;
+                        return (
+                          <option key={slotValue} value={slotValue}>{slotLabel}</option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                ) : (
+                  <div className="form-group">
+                    <label>Horário desejado</label>
+                    <input 
+                      className="input-field" 
+                      value={horario} 
+                      onChange={e => setHorario(e.target.value)} 
+                    />
+                  </div>
+                )}
 
                 <div className="form-group">
                   <label>Cidade (opcional)</label>
