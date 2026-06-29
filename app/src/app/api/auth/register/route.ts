@@ -113,6 +113,26 @@ export async function POST(req: Request) {
           })
         });
         console.log("Notificação de WhatsApp enviada ao professor.");
+
+        // Enviar mensagem para o aluno
+        const studentPhoneStr = whatsapp.replace(/\D/g, ''); // Removes all non-numeric chars
+        if (studentPhoneStr) {
+           const studentMsg = `Olá ${name}! Recebemos a sua solicitação de reserva de vaga para as aulas de música.\n\nO professor já foi notificado e entrará em contato com você em breve para confirmar os horários e o pagamento.`;
+           await fetch(WHATSAPP_API_URL, {
+             method: "POST",
+             headers: {
+               "Content-Type": "application/json",
+               "Authorization": `Bearer ${WHATSAPP_API_TOKEN}`,
+               "apikey": WHATSAPP_API_TOKEN 
+             },
+             body: JSON.stringify({
+               number: studentPhoneStr,
+               text: studentMsg,
+               message: studentMsg
+             })
+           });
+           console.log("Notificação de WhatsApp enviada ao aluno.");
+        }
       } else {
         console.warn("Variáveis de ambiente do WhatsApp não configuradas. Notificação não enviada.");
       }
