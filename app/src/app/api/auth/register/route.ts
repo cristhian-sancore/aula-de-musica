@@ -115,7 +115,12 @@ export async function POST(req: Request) {
         console.log("Notificação de WhatsApp enviada ao professor.");
 
         // Enviar mensagem para o aluno
-        const studentPhoneStr = whatsapp.replace(/\D/g, ''); // Removes all non-numeric chars
+        let studentPhoneStr = whatsapp.replace(/\D/g, ''); // Removes all non-numeric chars
+        // Prepend 55 if it's missing (usually length is 10 or 11 for Brazil numbers without country code)
+        if (studentPhoneStr.length === 10 || studentPhoneStr.length === 11) {
+          studentPhoneStr = '55' + studentPhoneStr;
+        }
+        
         if (studentPhoneStr) {
            const studentMsg = `Olá ${name}! Recebemos a sua solicitação de reserva de vaga para as aulas de música.\n\nO professor já foi notificado e entrará em contato com você em breve para confirmar os horários e o pagamento.`;
            await fetch(WHATSAPP_API_URL, {
