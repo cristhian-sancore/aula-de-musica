@@ -70,8 +70,35 @@ export async function POST(req: Request) {
         studentId: session.user.id,
         lessonId,
         content
+      },
+      include: {
+        student: true,
+        lesson: true
       }
     });
+
+    // Enviar notificação de WhatsApp para o professor
+    const WHATSAPP_API_URL = process.env.WHATSAPP_API_URL;
+    const WHATSAPP_API_TOKEN = process.env.WHATSAPP_API_TOKEN;
+    const TEACHER_WHATSAPP = process.env.TEACHER_WHATSAPP;
+
+    if (WHATSAPP_API_URL && WHATSAPP_API_TOKEN && TEACHER_WHATSAPP) {
+      const notifyMsg = `*Nova Dúvida na Plataforma!* 🙋‍♂️\n\nO aluno *${message.student.name}* enviou uma dúvida na aula *"${message.lesson.title}"*:\n\n_"${content}"_\n\nAcesse o seu painel de professor na aba de Mensagens para responder!`;
+
+      await fetch(WHATSAPP_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${WHATSAPP_API_TOKEN}`,
+          "apikey": WHATSAPP_API_TOKEN 
+        },
+        body: JSON.stringify({
+          number: TEACHER_WHATSAPP,
+          text: notifyMsg,
+          message: notifyMsg
+        })
+      }).catch(e => console.error("Erro ao notificar professor no whatsapp", e));
+    }
 
     return NextResponse.json(message);
   } catch (error) {
