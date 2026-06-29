@@ -10,6 +10,7 @@ type Lesson = {
   title: string;
   videoUrl: string;
   order: number;
+  chapter?: string;
 };
 
 type LessonMessage = {
@@ -24,7 +25,8 @@ type ModuleData = {
   title: string;
   description: string;
   lessons: Lesson[];
-  completedLessonIds?: string[]; // Added this to store completed lessons
+  completedLessonIds?: string[];
+  studentInstrument?: string;
 };
 
 export default function ModulePlayerPage() {
@@ -257,39 +259,69 @@ export default function ModulePlayerPage() {
 
         <div className="playlist-section">
           <div className="playlist-header">
-            <h3>Conteúdo do Módulo</h3>
+            <h3>{moduleData.studentInstrument ? `Aulas de ${moduleData.studentInstrument}` : "Conteúdo do Módulo"}</h3>
             <span>{moduleData.lessons.length} aulas</span>
           </div>
           
-          <ul className="playlist">
-            {moduleData.lessons.map((lesson, idx) => {
-              const isCompleted = completedLessons.includes(lesson.id);
-              // A lesson is locked if the PREVIOUS lesson exists and is NOT completed
-              const isLocked = idx > 0 && !completedLessons.includes(moduleData.lessons[idx - 1].id);
-              const isActive = currentLesson?.id === lesson.id;
+          <div className="playlist-chapters" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '12px' }}>
+            {(() => {
+              const chaptersOrder = ["Introdução", "Básico 1", "Básico 2", "Avançado 1"];
+              const allChapters = Array.from(new Set(moduleData.lessons.map(l => l.chapter || "Geral")));
+              
+              // Sort chapters based on chaptersOrder first, then alphabetically
+              allChapters.sort((a, b) => {
+                const idxA = chaptersOrder.indexOf(a);
+                const idxB = chaptersOrder.indexOf(b);
+                if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                if (idxA !== -1) return -1;
+                if (idxB !== -1) return 1;
+                return a.localeCompare(b);
+              });
 
-              return (
-                <li 
-                  key={lesson.id}
-                  className={`playlist-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}`}
-                  onClick={() => {
-                    if (!isLocked) setCurrentLesson(lesson);
-                  }}
-                >
-                  <div className="item-number">
-                    {isCompleted ? "✓" : (isLocked ? "🔒" : idx + 1)}
+              return allChapters.map(chap => {
+                const chapLessons = moduleData.lessons.filter(l => (l.chapter || "Geral") === chap);
+                if (chapLessons.length === 0) return null;
+
+                return (
+                  <div key={chap} className="playlist-chapter-group">
+                    <h4 style={{ fontSize: '0.95rem', color: 'var(--color-primary)', marginBottom: '8px', paddingLeft: '8px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      📁 {chap}
+                    </h4>
+                    <ul className="playlist" style={{ gap: '6px' }}>
+                      {chapLessons.map(lesson => {
+                        const idx = moduleData.lessons.findIndex(l => l.id === lesson.id);
+                        const isCompleted = completedLessons.includes(lesson.id);
+                        const isLocked = idx > 0 && !completedLessons.includes(moduleData.lessons[idx - 1].id);
+                        const isActive = currentLesson?.id === lesson.id;
+
+                        return (
+                          <li 
+                            key={lesson.id}
+                            className={`playlist-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}`}
+                            onClick={() => {
+                              if (!isLocked) setCurrentLesson(lesson);
+                            }}
+                            style={{ borderRadius: '8px' }}
+                          >
+                            <div className="item-number">
+                              {isCompleted ? "✓" : (isLocked ? "🔒" : idx + 1)}
+                            </div>
+                            <div className="item-details">
+                              <span className="item-title">{lesson.title}</span>
+                              {isActive && (
+                                <span className="item-playing">Reproduzindo...</span>
+                              )}
+                            </div>
+                            {!isLocked && <PlayCircle size={18} className="play-icon" />}
+                          </li>
+                        );
+                      })}
+                    </ul>
                   </div>
-                  <div className="item-details">
-                    <span className="item-title">{lesson.title}</span>
-                    {isActive && (
-                      <span className="item-playing">Reproduzindo...</span>
-                    )}
-                  </div>
-                  {!isLocked && <PlayCircle size={18} className="play-icon" />}
-                </li>
-              );
-            })}
-          </ul>
+                );
+              });
+            })()}
+          </div>
         </div>
       </div>
     </div>

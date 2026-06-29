@@ -37,9 +37,10 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Teacher relationships
-  taughtModules Module[]         @relation("TeacherModules")
-  customLinks   CustomLink[]     @relation("TeacherLinks")
-  settings      TeacherSettings?
+  taughtModules  Module[]          @relation("TeacherModules")
+  customLinks    CustomLink[]      @relation("TeacherLinks")
+  settings       TeacherSettings?
+  teacherLessons VideoLesson[]     @relation("TeacherLessons")
 
   // Student relationships
   enrollments Enrollment[]     @relation("StudentEnrollments")
@@ -81,14 +82,18 @@ model Module {
 }
 
 model VideoLesson {
-  id        String   @id @default(uuid())
-  title     String
-  videoUrl  String // Expected to be a YouTube ID or embed URL
-  order     Int      @default(0)
-  moduleId  String
-  module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  title      String
+  videoUrl   String // Expected to be a YouTube ID or embed URL
+  order      Int      @default(0)
+  moduleId   String?
+  module     Module?  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  teacherId  String?
+  teacher    User?    @relation("TeacherLessons", fields: [teacherId], references: [id], onDelete: Cascade)
+  instrument String? // Ex: "Violão", "Teclado", etc.
+  chapter    String? // Ex: "Introdução", "Básico 1", "Básico 2", "Avançado 1"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   progresses LessonProgress[]
   messages   LessonMessage[]

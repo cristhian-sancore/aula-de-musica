@@ -23,14 +23,13 @@ export async function GET(req: Request) {
       });
       return NextResponse.json(messages);
     } else if (session.user.role === "TEACHER") {
-      // Teacher fetching all messages for their modules
+      // Teacher fetching all messages for their modules or lessons
       const messages = await prisma.lessonMessage.findMany({
         where: {
-          lesson: {
-            module: {
-              teacherId: session.user.id
-            }
-          }
+          OR: [
+            { lesson: { teacherId: session.user.id } },
+            { lesson: { module: { teacherId: session.user.id } } }
+          ]
         },
         include: {
           student: {
@@ -125,7 +124,9 @@ export async function PUT(req: Request) {
       include: { lesson: { include: { module: true } } }
     });
 
-    if (!message || message.lesson.module.teacherId !== session.user.id) {
+    const lessonTeacherId = message?.lesson.teacherId || message?.lesson.module?.teacherId;
+
+    if (!message || lessonTeacherId !== session.user.id) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 

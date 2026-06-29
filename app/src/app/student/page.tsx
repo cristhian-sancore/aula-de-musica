@@ -8,6 +8,7 @@ import "./student.css";
 type EnrollmentWithModule = {
   id: string;
   status: string;
+  instrument: string | null;
   module: {
     id: string;
     title: string;
@@ -50,11 +51,18 @@ export default async function StudentDashboard() {
             return (
               <div key={enc.id} className={`course-card ${isLocked ? 'locked' : ''}`}>
                 <div className="course-content">
-                  <h3>{enc.module.title}</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <h3 style={{ margin: 0 }}>{enc.module.title}</h3>
+                    {enc.instrument && (
+                      <span style={{ backgroundColor: 'rgba(99, 102, 241, 0.1)', color: 'var(--color-primary)', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 600 }}>
+                        🎸 {enc.instrument}
+                      </span>
+                    )}
+                  </div>
                   <p>{enc.module.description || "Acompanhe as aulas deste módulo."}</p>
                   
                   <div className="course-meta">
-                    <span>{enc.module.lessons.length} aulas disponíveis</span>
+                    <span>{enc.instrument ? `Curso de ${enc.instrument}` : "Aulas gerais do módulo"}</span>
                   </div>
                 </div>
 

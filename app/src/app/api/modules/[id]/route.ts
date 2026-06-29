@@ -39,20 +39,43 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         include: { lessons: true },
       });
 
-      // Get completed lessons for this student in this module
+      if (!foundModule) {
+        return NextResponse.json({ error: "Módulo não encontrado" }, { status: 404 });
+      }
+
+      // Se o aluno selecionou um instrumento na matrícula, buscar as aulas específicas desse instrumento
+      if (enrollment.instrument) {
+        const instrumentLessons = await prisma.videoLesson.findMany({
+          where: {
+            teacherId: foundModule.teacherId,
+            instrument: enrollment.instrument,
+          },
+          orderBy: {
+            order: "asc",
+          },
+        });
+
+        if (instrumentLessons.length > 0) {
+          foundModule.lessons = instrumentLessons;
+        }
+      }
+
+      const lessonIds = foundModule.lessons.map(l => l.id);
+
+      // Get completed lessons for this student
       const completedProgress = await prisma.lessonProgress.findMany({
         where: {
           studentId: session.user.id,
-          lesson: { moduleId: id }
+          lessonId: { in: lessonIds }
         },
         select: { lessonId: true }
       });
 
       const completedLessonIds = completedProgress.map(p => p.lessonId);
       
-      // Inject completedLessonIds into the module object so the frontend knows
       return NextResponse.json({
         ...foundModule,
+        studentInstrument: enrollment.instrument,
         completedLessonIds
       });
     }
