@@ -48,6 +48,11 @@ export default function InvitePage() {
   const [selectedInstrument, setSelectedInstrument] = useState("");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [installments, setInstallments] = useState(1);
+  const [responsavel, setResponsavel] = useState("");
+  const [horario, setHorario] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [conheceu, setConheceu] = useState("");
+  const [observacoes, setObservacoes] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   async function fetchLinkData(token: string) {
@@ -125,6 +130,11 @@ export default function InvitePage() {
           instrument: selectedInstrument,
           paymentMethod: selectedPaymentMethod,
           installments: installments.toString(),
+          responsavel,
+          horario,
+          cidade,
+          conheceu,
+          observacoes
         })
       });
 
@@ -278,8 +288,8 @@ export default function InvitePage() {
         {/* STEP 3: REGISTRATION */}
         {step === 3 && (
           <div className="step-content animate-fade-in">
-            <h2 className="section-title">Reserva da Vaga</h2>
-            <p className="section-subtitle">Sua matrícula garante a reserva do horário e permite iniciar toda a organização pedagógica antes da primeira aula.</p>
+            <h2 className="section-title">Solicitar Reserva da Minha Vaga</h2>
+            <p className="section-subtitle">Após receber sua solicitação entrarei em contato para confirmar o melhor horário disponível.</p>
             
             <form onSubmit={handleSubmit} className="registration-form-container">
               
@@ -324,7 +334,7 @@ export default function InvitePage() {
               <div className="stylish-card">
                 <span className="card-label">DADOS PESSOAIS</span>
                 <div className="form-group" style={{ marginTop: '16px' }}>
-                  <label>Nome Completo</label>
+                  <label>Nome do aluno</label>
                   <input 
                     required 
                     className="input-field" 
@@ -333,58 +343,112 @@ export default function InvitePage() {
                   />
                 </div>
 
-              <div className="form-group">
-                <label>E-mail</label>
-                <input 
-                  required 
-                  type="email" 
-                  className="input-field" 
-                  value={email} 
-                  onChange={e => setEmail(e.target.value)} 
-                />
-              </div>
+                <div className="form-group">
+                  <label>Nome do responsável</label>
+                  <input 
+                    className="input-field" 
+                    value={responsavel} 
+                    onChange={e => setResponsavel(e.target.value)} 
+                  />
+                </div>
 
-              <div className="form-group">
-                <label>WhatsApp</label>
-                <input 
-                  required 
-                  type="tel" 
-                  className="input-field" 
-                  value={whatsapp} 
-                  onChange={e => setWhatsapp(e.target.value)} 
-                  placeholder="(00) 00000-0000"
-                />
-              </div>
+                <div className="form-group">
+                  <label>WhatsApp</label>
+                  <input 
+                    required 
+                    type="tel" 
+                    className="input-field" 
+                    value={whatsapp} 
+                    onChange={e => setWhatsapp(e.target.value)} 
+                    placeholder="(00) 00000-0000"
+                  />
+                </div>
 
-              <div className="form-group">
-                <label>Crie uma Senha para Acesso</label>
-                <input 
-                  required 
-                  type="password" 
-                  className="input-field" 
-                  value={password} 
-                  onChange={e => setPassword(e.target.value)} 
-                  placeholder="Mínimo de 6 caracteres"
-                  minLength={6}
-                />
-              </div>
+                <div className="form-group">
+                  <label>E-mail (Para acessar o portal)</label>
+                  <input 
+                    required 
+                    type="email" 
+                    className="input-field" 
+                    value={email} 
+                    onChange={e => setEmail(e.target.value)} 
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Crie uma Senha para Acesso</label>
+                  <input 
+                    required 
+                    type="password" 
+                    className="input-field" 
+                    value={password} 
+                    onChange={e => setPassword(e.target.value)} 
+                    placeholder="Mínimo de 6 caracteres"
+                    minLength={6}
+                  />
+                </div>
 
               {linkData.instruments && linkData.instruments.length > 0 && (
                 <div className="form-group">
-                  <label>Qual instrumento você vai cursar?</label>
+                  <label>Instrumento desejado</label>
                   <select 
                     required 
                     className="input-field"
                     value={selectedInstrument}
                     onChange={e => setSelectedInstrument(e.target.value)}
                   >
-                    <option value="" disabled>Selecione um instrumento...</option>
+                    <option value="" disabled>Selecione...</option>
                     {linkData.instruments.map(inst => (
                       <option key={inst} value={inst}>{inst}</option>
                     ))}
                   </select>
                 </div>
               )}
+
+                <div className="form-group">
+                  <label>Horário desejado</label>
+                  <input 
+                    className="input-field" 
+                    value={horario} 
+                    onChange={e => setHorario(e.target.value)} 
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Cidade (opcional)</label>
+                  <input 
+                    className="input-field" 
+                    value={cidade} 
+                    onChange={e => setCidade(e.target.value)} 
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Como conheceu meu trabalho?</label>
+                  <select 
+                    className="input-field"
+                    value={conheceu}
+                    onChange={e => setConheceu(e.target.value)}
+                  >
+                    <option value="" disabled>Selecione...</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="YouTube">YouTube</option>
+                    <option value="Indicação">Indicação</option>
+                    <option value="Google">Google</option>
+                    <option value="Outros">Outros</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Observações</label>
+                  <textarea 
+                    className="input-field" 
+                    rows={3}
+                    value={observacoes} 
+                    onChange={e => setObservacoes(e.target.value)} 
+                  />
+                </div>
               </div>
 
               {/* FORMA DE PAGAMENTO CARD */}
@@ -456,7 +520,7 @@ export default function InvitePage() {
                   <ArrowLeft size={18} /> Voltar
                 </button>
                 <button type="submit" className="btn-primary btn-large" disabled={submitting}>
-                  {submitting ? "Processando..." : "Finalizar Reserva"}
+                  {submitting ? "Processando..." : "Enviar Solicitação"}
                 </button>
               </div>
             </form>
@@ -466,19 +530,29 @@ export default function InvitePage() {
         {/* STEP 4: SUCCESS */}
         {step === 4 && (
           <div className="step-content animate-fade-in text-center success-step">
-            <div className="success-icon">
-              <Check size={48} />
-            </div>
-            <h1 className="main-title">Reserva Solicitada com Sucesso!</h1>
+            <h2 className="section-title">Solicitação Enviada!</h2>
             <p className="subtitle">O professor <strong>{linkData.teacher.name}</strong> foi notificado da sua matrícula.</p>
             
             <div className="next-steps-card">
-              <h3>Próximos Passos:</h3>
-              <ol>
-                <li>O professor entrará em contato via WhatsApp.</li>
-                <li>Você realiza o pagamento diretamente para ele.</li>
-                <li>Ele libera seu acesso na plataforma!</li>
-              </ol>
+              <h3>Próximos Passos</h3>
+              <div className="numbered-steps">
+                <div className="num-step">
+                  <div className="num-circle">1</div>
+                  <p>Recebo sua solicitação.</p>
+                </div>
+                <div className="num-step">
+                  <div className="num-circle">2</div>
+                  <p>Analiso os horários disponíveis.</p>
+                </div>
+                <div className="num-step">
+                  <div className="num-circle">3</div>
+                  <p>Entro em contato.</p>
+                </div>
+                <div className="num-step">
+                  <div className="num-circle">4</div>
+                  <p>Após confirmação da matrícula sua vaga será oficialmente reservada.</p>
+                </div>
+              </div>
             </div>
 
             <div className="action-row centered">

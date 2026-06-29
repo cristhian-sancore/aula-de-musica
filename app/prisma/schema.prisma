@@ -115,6 +115,13 @@ model Enrollment {
   instrument    String?
   paymentMethod String?
   installments  Int?             @default(1)
+  
+  responsavel   String?
+  horario       String?
+  cidade        String?
+  conheceu      String?
+  observacoes   String?
+  
   status        EnrollmentStatus @default(PENDING_PAYMENT)
   student       User             @relation("StudentEnrollments", fields: [studentId], references: [id])
   module        Module           @relation(fields: [moduleId], references: [id])
