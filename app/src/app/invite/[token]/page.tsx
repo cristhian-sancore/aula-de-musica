@@ -260,15 +260,9 @@ export default function InvitePage() {
                     <h3 className="plan-title">{mod.title}</h3>
                     <div className="plan-price-container">
                       {(() => {
-                        let divisor = 12; // Padrão 12x
-                        const titleLower = mod.title.toLowerCase();
-                        if (titleLower.includes("mensal") || titleLower.includes("mês") || titleLower.includes("mes")) divisor = 1;
-                        else if (titleLower.includes("bimestral")) divisor = 2;
-                        else if (titleLower.includes("trimestral")) divisor = 3;
-                        else if (titleLower.includes("semestral")) divisor = 6;
-                        else if (titleLower.includes("anual")) divisor = 12;
+                        const divisor = 12; // Sempre dividir por 12, conforme solicitado pelo usuário
 
-                        if (divisor > 1 && mod.price > 0) {
+                        if (mod.price > 0) {
                           return (
                             <>
                               <div className="plan-price-highlight">
@@ -282,7 +276,7 @@ export default function InvitePage() {
                         } else {
                           return (
                             <div className="plan-price-highlight">
-                              R$ {mod.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              Grátis
                             </div>
                           );
                         }
