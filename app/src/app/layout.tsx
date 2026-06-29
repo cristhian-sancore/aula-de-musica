@@ -8,10 +8,24 @@ const outfit = Outfit({
   variable: "--font-outfit",
 });
 
-export const metadata: Metadata = {
-  title: "Aula de Música 2.0 - LMS",
-  description: "Plataforma premium para ensino de música",
-};
+import { prisma } from "@/lib/prisma";
+
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const teacherSettings = await prisma.teacherSettings.findFirst();
+    const platformName = teacherSettings?.platformName || "Aula de Música 2.0 - LMS";
+
+    return {
+      title: platformName,
+      description: "Plataforma premium para ensino de música",
+    };
+  } catch (error) {
+    return {
+      title: "Aula de Música 2.0 - LMS",
+      description: "Plataforma premium para ensino de música",
+    };
+  }
+}
 
 export default function RootLayout({
   children,

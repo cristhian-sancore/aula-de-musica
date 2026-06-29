@@ -53,6 +53,7 @@ model TeacherSettings {
   enrollmentFee         Float    @default(90.00)
   defaultInstruments    String[] @default(["Violão", "Teclado", "Guitarra", "Baixo", "Bateria", "Canto"])
   defaultPaymentMethods String[] @default(["PIX", "Cartão de Crédito", "Boleto"])
+  platformName          String   @default("Aula de Música")
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 }

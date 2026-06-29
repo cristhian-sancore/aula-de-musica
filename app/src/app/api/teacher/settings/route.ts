@@ -41,7 +41,7 @@ export async function PUT(req: Request) {
     }
 
     const body = await req.json();
-    const { cardTaxRate, enrollmentFee, defaultInstruments, defaultPaymentMethods } = body;
+    const { cardTaxRate, enrollmentFee, defaultInstruments, defaultPaymentMethods, platformName } = body;
 
     const settings = await prisma.teacherSettings.upsert({
       where: {
@@ -52,6 +52,7 @@ export async function PUT(req: Request) {
         enrollmentFee: typeof enrollmentFee === 'number' ? enrollmentFee : 90.00,
         defaultInstruments: Array.isArray(defaultInstruments) ? defaultInstruments : [],
         defaultPaymentMethods: Array.isArray(defaultPaymentMethods) ? defaultPaymentMethods : [],
+        platformName: typeof platformName === 'string' ? platformName : "Aula de Música",
       },
       create: {
         teacherId: session.user.id,
@@ -59,6 +60,7 @@ export async function PUT(req: Request) {
         enrollmentFee: typeof enrollmentFee === 'number' ? enrollmentFee : 90.00,
         defaultInstruments: Array.isArray(defaultInstruments) ? defaultInstruments : [],
         defaultPaymentMethods: Array.isArray(defaultPaymentMethods) ? defaultPaymentMethods : [],
+        platformName: typeof platformName === 'string' ? platformName : "Aula de Música",
       }
     });
 

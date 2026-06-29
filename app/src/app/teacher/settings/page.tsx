@@ -9,6 +9,7 @@ type TeacherSettings = {
   enrollmentFee: number;
   defaultInstruments: string[];
   defaultPaymentMethods: string[];
+  platformName: string;
 };
 
 export default function SettingsPage() {
@@ -19,6 +20,7 @@ export default function SettingsPage() {
     enrollmentFee: 90.00,
     defaultInstruments: [],
     defaultPaymentMethods: [],
+    platformName: "Aula de Música",
   });
 
   // String representations for the inputs
@@ -26,6 +28,7 @@ export default function SettingsPage() {
   const [paymentsInput, setPaymentsInput] = useState("");
   const [taxInput, setTaxInput] = useState("0");
   const [feeInput, setFeeInput] = useState("90.00");
+  const [platformNameInput, setPlatformNameInput] = useState("Aula de Música");
 
   useEffect(() => {
     fetchSettings();
@@ -41,6 +44,7 @@ export default function SettingsPage() {
         setPaymentsInput((data.defaultPaymentMethods || []).join(", "));
         setTaxInput(data.cardTaxRate ? data.cardTaxRate.toString() : "0");
         setFeeInput(data.enrollmentFee !== undefined && data.enrollmentFee !== null ? data.enrollmentFee.toFixed(2) : "90.00");
+        setPlatformNameInput(data.platformName || "Aula de Música");
       }
     } catch (error) {
       console.error("Erro ao carregar configurações", error);
@@ -71,6 +75,7 @@ export default function SettingsPage() {
           enrollmentFee: finalFee,
           defaultInstruments: instrumentsList,
           defaultPaymentMethods: paymentsList,
+          platformName: platformNameInput,
         }),
       });
 
@@ -100,6 +105,27 @@ export default function SettingsPage() {
 
       <div className="settings-container">
         <form onSubmit={handleSubmit} className="settings-form">
+          <div className="settings-section">
+            <div className="section-header">
+              <Settings className="section-icon" />
+              <div>
+                <h3>Geral</h3>
+                <p>Configurações básicas da sua plataforma.</p>
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Nome do Site (Aba do Navegador):</label>
+              <input 
+                type="text" 
+                className="input-field" 
+                value={platformNameInput}
+                onChange={(e) => setPlatformNameInput(e.target.value)}
+                placeholder="Ex: Aula de Música"
+              />
+              <small className="help-text">Este nome aparecerá na aba do navegador e nos links compartilhados.</small>
+            </div>
+          </div>
+
           <div className="settings-section">
             <div className="section-header">
               <Percent className="section-icon" />
