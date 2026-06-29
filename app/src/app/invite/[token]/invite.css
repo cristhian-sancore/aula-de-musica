@@ -458,9 +458,64 @@
 }
 
 .plan-price-large {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 800;
   color: var(--color-primary);
+}
+
+.enrollment-fee-card {
+  border-color: rgba(218, 123, 26, 0.3);
+}
+
+.fee-header {
+  text-align: center;
+  margin: 16px 0;
+}
+
+.fee-subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.fee-header .plan-price-large {
+  font-size: 2.2rem;
+}
+
+.fee-highlight {
+  background-color: rgba(253, 230, 138, 0.3);
+  border: 1px solid rgba(253, 230, 138, 0.8);
+  color: #92400e;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 24px;
+}
+
+.fee-includes-title {
+  font-size: 0.85rem;
+  color: var(--color-text-main);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.fee-includes-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fee-includes-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1rem;
+  color: var(--color-text-main);
 }
 
 /* Success Step */

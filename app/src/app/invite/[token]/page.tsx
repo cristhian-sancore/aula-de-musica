@@ -268,10 +268,32 @@ export default function InvitePage() {
         {/* STEP 3: REGISTRATION */}
         {step === 3 && (
           <div className="step-content animate-fade-in">
-            <h2 className="section-title">Preencha seus Dados</h2>
-            <p className="section-subtitle">Para finalizar a reserva da sua vaga, informe seus dados abaixo.</p>
+            <h2 className="section-title">Reserva da Vaga</h2>
+            <p className="section-subtitle">Sua matrícula garante a reserva do horário e permite iniciar toda a organização pedagógica antes da primeira aula.</p>
             
             <form onSubmit={handleSubmit} className="registration-form-container">
+              
+              {/* TAXA DE MATRÍCULA (IMAGE 1) */}
+              <div className="stylish-card enrollment-fee-card">
+                <span className="card-label">MATRÍCULA</span>
+                <div className="fee-header">
+                  <span className="fee-subtitle">Investimento da Matrícula</span>
+                  <div className="plan-price-large">R$ 90,00</div>
+                </div>
+                
+                <div className="fee-highlight">
+                  Pagamento exclusivamente via PIX ou Dinheiro
+                </div>
+                
+                <h4 className="fee-includes-title">SUA MATRÍCULA INCLUI:</h4>
+                <ul className="fee-includes-list">
+                  <li><Check size={18} className="text-primary" /> Reserva do horário</li>
+                  <li><Check size={18} className="text-primary" /> Cadastro</li>
+                  <li><Check size={18} className="text-primary" /> Planejamento individual</li>
+                  <li><Check size={18} className="text-primary" /> Organização pedagógica</li>
+                  <li><Check size={18} className="text-primary" /> Acompanhamento personalizado</li>
+                </ul>
+              </div>
               
               {/* PLANO ESCOLHIDO CARD */}
               <div className="stylish-card">
