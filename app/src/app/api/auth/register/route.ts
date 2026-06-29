@@ -95,9 +95,16 @@ export async function POST(req: Request) {
       const TEACHER_WHATSAPP = process.env.TEACHER_WHATSAPP; 
 
       if (WHATSAPP_API_URL && WHATSAPP_API_TOKEN && TEACHER_WHATSAPP) {
+        // Fetch module names to show in the message
+        const selectedModulesData = await prisma.module.findMany({
+          where: { id: { in: selectedModules } },
+          select: { title: true }
+        });
+        const planNames = selectedModulesData.map(m => m.title).join(", ");
+
         const instrumentText = instrument ? `\nInstrumento: ${instrument}` : '';
         const paymentText = paymentMethod ? `\nPagamento: ${paymentMethod}${installments ? ` em ${installments}x` : ''}` : '';
-        const mensagem = `*Nova Matrícula Solicitada!*\n\nO aluno *${name}* (${whatsapp}) acabou de se cadastrar através do seu link exclusivo.${instrumentText}${paymentText}\n\nAcesse o painel para liberar o acesso assim que confirmar o pagamento.`;
+        const mensagem = `*Nova Matrícula Solicitada!*\n\nO aluno *${name}* (${whatsapp}) acabou de se cadastrar através do seu link exclusivo.\n\nPlano Escolhido: *${planNames}*${instrumentText}${paymentText}\n\nAcesse o painel para liberar o acesso assim que confirmar o pagamento.`;
 
         await fetch(WHATSAPP_API_URL, {
           method: "POST",
