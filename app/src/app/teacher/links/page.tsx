@@ -258,6 +258,7 @@ export default function LinksPage() {
               <div className="form-group">
                 <label>Nome do Aluno (Referência para você)</label>
                 <input 
+                  required
                   className="input-field" 
                   value={studentName} 
                   onChange={e => setStudentName(e.target.value)} 

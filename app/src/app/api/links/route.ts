@@ -51,12 +51,12 @@ export async function POST(req: Request) {
 
     // Generate friendly token
     let tokenValue = undefined;
-    if (studentName) {
-      const normalized = studentName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-      const slug = normalized.replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
-      const randomSuffix = Math.random().toString(36).substring(2, 6);
-      tokenValue = slug ? `${slug}-${randomSuffix}` : undefined;
-    }
+    const nameToSlug = studentName && studentName.trim() ? studentName : "convite-exclusivo";
+    
+    const normalized = nameToSlug.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const slug = normalized.replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+    const randomSuffix = Math.random().toString(36).substring(2, 6);
+    tokenValue = slug ? `${slug}-${randomSuffix}` : `link-${randomSuffix}`;
 
     // Create the CustomLink and connect the selected modules
     const newLink = await prisma.customLink.create({
