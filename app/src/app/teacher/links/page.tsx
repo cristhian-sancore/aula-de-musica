@@ -224,7 +224,7 @@ export default function LinksPage() {
               <div className="link-actions">
                 <div className="link-url-display">
                   <LinkIcon size={16} />
-                  <span>.../invite/{link.token.substring(0, 8)}...</span>
+                  <span>.../invite/{link.token}</span>
                 </div>
                 <div className="action-buttons">
                   <button className="btn-secondary" onClick={() => copyToClipboard(link.token)}>

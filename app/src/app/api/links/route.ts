@@ -49,9 +49,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "É necessário selecionar pelo menos um módulo" }, { status: 400 });
     }
 
+    // Generate friendly token
+    let tokenValue = undefined;
+    if (studentName) {
+      const normalized = studentName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      const slug = normalized.replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+      const randomSuffix = Math.random().toString(36).substring(2, 6);
+      tokenValue = slug ? `${slug}-${randomSuffix}` : undefined;
+    }
+
     // Create the CustomLink and connect the selected modules
     const newLink = await prisma.customLink.create({
       data: {
+        token: tokenValue,
         studentName,
         teacherId: session.user.id,
         instruments: Array.isArray(instruments) ? instruments : [],
