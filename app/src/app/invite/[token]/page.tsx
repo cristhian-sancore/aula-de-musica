@@ -119,7 +119,7 @@ export default function InvitePage() {
       });
 
       if (res.ok) {
-        setStep(5); // Success step
+        setStep(4); // Success step
       } else {
         const err = await res.json();
         alert(err.error || "Erro ao realizar matrícula");
@@ -168,8 +168,8 @@ export default function InvitePage() {
             </div>
             <div className={`step-line ${step >= 4 ? 'active' : ''}`}></div>
             <div className={`step ${step >= 4 ? 'active' : ''}`}>
-              <div className="step-circle">4</div>
-              <span>Reserva</span>
+              <div className="step-circle"><Check size={14}/></div>
+              <span>Concluído</span>
             </div>
           </div>
         </header>
@@ -265,47 +265,8 @@ export default function InvitePage() {
           </div>
         )}
 
-        {/* STEP 3: SUMMARY */}
+        {/* STEP 3: REGISTRATION */}
         {step === 3 && (
-          <div className="step-content animate-fade-in">
-            <h2 className="section-title">Resumo da sua matrícula</h2>
-            
-            <div className="summary-card">
-              <div className="summary-items">
-                {linkData.modules
-                  .filter(m => selectedModules.includes(m.module.id))
-                  .map(m => (
-                    <div key={m.module.id} className="summary-item">
-                      <span>{m.module.title}</span>
-                      <strong>R$ {m.module.price.toFixed(2)}</strong>
-                    </div>
-                  ))
-                }
-              </div>
-              <div className="summary-total">
-                <span>Valor Total</span>
-                <strong>R$ {getSelectedTotal().toFixed(2)}</strong>
-              </div>
-            </div>
-
-            <div className="info-alert">
-              <ShieldCheck size={20} />
-              <p>O pagamento será realizado diretamente com o professor após a conclusão da reserva. Sua vaga ficará garantida!</p>
-            </div>
-
-            <div className="action-row space-between">
-              <button className="btn-text" onClick={() => setStep(2)}>
-                <ArrowLeft size={18} /> Voltar
-              </button>
-              <button className="btn-primary btn-large" onClick={() => setStep(4)}>
-                Preencher Dados <ArrowRight size={18} />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 4: REGISTRATION */}
-        {step === 4 && (
           <div className="step-content animate-fade-in">
             <h2 className="section-title">Preencha seus Dados</h2>
             <p className="section-subtitle">Para finalizar a reserva da sua vaga, informe seus dados abaixo.</p>
@@ -455,7 +416,7 @@ export default function InvitePage() {
               </div>
 
               <div className="action-row space-between" style={{ marginTop: '24px' }}>
-                <button type="button" className="btn-text" onClick={() => setStep(3)}>
+                <button type="button" className="btn-text" onClick={() => setStep(2)}>
                   <ArrowLeft size={18} /> Voltar
                 </button>
                 <button type="submit" className="btn-primary btn-large" disabled={submitting}>
@@ -466,8 +427,8 @@ export default function InvitePage() {
           </div>
         )}
 
-        {/* STEP 5: SUCCESS */}
-        {step === 5 && (
+        {/* STEP 4: SUCCESS */}
+        {step === 4 && (
           <div className="step-content animate-fade-in text-center success-step">
             <div className="success-icon">
               <Check size={48} />
