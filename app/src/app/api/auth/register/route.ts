@@ -122,7 +122,7 @@ export async function POST(req: Request) {
         }
         
         if (studentPhoneStr) {
-           const studentMsg = `Olá ${name}! Recebemos a sua solicitação de reserva de vaga para as aulas de música.\n\nO professor já foi notificado e entrará em contato com você em breve para confirmar os horários e o pagamento.`;
+           const studentMsg = `Olá, *${name}*! 🎵\n\nRecebemos a sua solicitação de reserva de vaga para as aulas de música.\n\n✅ *O professor já foi notificado!*\n\nEm breve ele entrará em contato por aqui mesmo para confirmar os horários disponíveis e as instruções de pagamento.\n\nFique de olho! 👀`;
            await fetch(WHATSAPP_API_URL, {
              method: "POST",
              headers: {
