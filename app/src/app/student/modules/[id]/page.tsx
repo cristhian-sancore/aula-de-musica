@@ -130,7 +130,7 @@ export default function ModulePlayerPage() {
           <div className="video-container">
             {currentLesson ? (
               <iframe
-                src={`https://www.youtube.com/embed/${extractYouTubeId(currentLesson.videoUrl)}`}
+                src={`https://www.youtube.com/embed/${extractYouTubeId(currentLesson.videoUrl)}?modestbranding=1&rel=0&showinfo=0`}
                 title={currentLesson.title}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
