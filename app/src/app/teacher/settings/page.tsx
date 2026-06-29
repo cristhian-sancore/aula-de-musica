@@ -6,6 +6,7 @@ import "./settings.css";
 
 type TeacherSettings = {
   cardTaxRate: number;
+  enrollmentFee: number;
   defaultInstruments: string[];
   defaultPaymentMethods: string[];
 };
@@ -15,6 +16,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<TeacherSettings>({
     cardTaxRate: 0,
+    enrollmentFee: 90.00,
     defaultInstruments: [],
     defaultPaymentMethods: [],
   });
@@ -23,6 +25,7 @@ export default function SettingsPage() {
   const [instrumentsInput, setInstrumentsInput] = useState("");
   const [paymentsInput, setPaymentsInput] = useState("");
   const [taxInput, setTaxInput] = useState("0");
+  const [feeInput, setFeeInput] = useState("90.00");
 
   useEffect(() => {
     fetchSettings();
@@ -37,6 +40,7 @@ export default function SettingsPage() {
         setInstrumentsInput((data.defaultInstruments || []).join(", "));
         setPaymentsInput((data.defaultPaymentMethods || []).join(", "));
         setTaxInput(data.cardTaxRate ? data.cardTaxRate.toString() : "0");
+        setFeeInput(data.enrollmentFee !== undefined && data.enrollmentFee !== null ? data.enrollmentFee.toFixed(2) : "90.00");
       }
     } catch (error) {
       console.error("Erro ao carregar configurações", error);
@@ -53,6 +57,9 @@ export default function SettingsPage() {
       const parsedTax = parseFloat(taxInput.replace(",", "."));
       const finalTax = isNaN(parsedTax) ? 0 : parsedTax;
 
+      const parsedFee = parseFloat(feeInput.replace(",", "."));
+      const finalFee = isNaN(parsedFee) ? 90.00 : parsedFee;
+
       const instrumentsList = instrumentsInput.split(',').map(s => s.trim()).filter(Boolean);
       const paymentsList = paymentsInput.split(',').map(s => s.trim()).filter(Boolean);
 
@@ -61,6 +68,7 @@ export default function SettingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           cardTaxRate: finalTax,
+          enrollmentFee: finalFee,
           defaultInstruments: instrumentsList,
           defaultPaymentMethods: paymentsList,
         }),
@@ -113,6 +121,22 @@ export default function SettingsPage() {
                 <span className="input-suffix">%</span>
               </div>
               <small className="help-text">Coloque 0 se não quiser repassar juros. Essa taxa será somada ao valor total quando o aluno escolher 4x ou mais no cartão.</small>
+            </div>
+
+            <div className="form-group" style={{ marginTop: '24px' }}>
+              <label>Valor da Taxa de Matrícula (R$):</label>
+              <div className="input-with-icon">
+                <span className="input-prefix">R$</span>
+                <input 
+                  type="text" 
+                  className="input-field" 
+                  value={feeInput}
+                  onChange={(e) => setFeeInput(e.target.value)}
+                  placeholder="Ex: 90.00"
+                  style={{ paddingLeft: '40px' }}
+                />
+              </div>
+              <small className="help-text">Coloque 0 caso você não cobre taxa de matrícula. Este valor será exibido na página de pagamento do convite.</small>
             </div>
           </div>
 

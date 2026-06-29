@@ -41,7 +41,7 @@ export async function PUT(req: Request) {
     }
 
     const body = await req.json();
-    const { cardTaxRate, defaultInstruments, defaultPaymentMethods } = body;
+    const { cardTaxRate, enrollmentFee, defaultInstruments, defaultPaymentMethods } = body;
 
     const settings = await prisma.teacherSettings.upsert({
       where: {
@@ -49,12 +49,14 @@ export async function PUT(req: Request) {
       },
       update: {
         cardTaxRate: typeof cardTaxRate === 'number' ? cardTaxRate : 0,
+        enrollmentFee: typeof enrollmentFee === 'number' ? enrollmentFee : 90.00,
         defaultInstruments: Array.isArray(defaultInstruments) ? defaultInstruments : [],
         defaultPaymentMethods: Array.isArray(defaultPaymentMethods) ? defaultPaymentMethods : [],
       },
       create: {
         teacherId: session.user.id,
         cardTaxRate: typeof cardTaxRate === 'number' ? cardTaxRate : 0,
+        enrollmentFee: typeof enrollmentFee === 'number' ? enrollmentFee : 90.00,
         defaultInstruments: Array.isArray(defaultInstruments) ? defaultInstruments : [],
         defaultPaymentMethods: Array.isArray(defaultPaymentMethods) ? defaultPaymentMethods : [],
       }

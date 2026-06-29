@@ -49,6 +49,7 @@ model TeacherSettings {
   teacherId             String   @unique
   teacher               User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   cardTaxRate           Float    @default(0)
+  enrollmentFee         Float    @default(90.00)
   defaultInstruments    String[] @default(["Violão", "Teclado", "Guitarra", "Baixo", "Bateria", "Canto"])
   defaultPaymentMethods String[] @default(["PIX", "Cartão de Crédito", "Boleto"])
   createdAt             DateTime @default(now())

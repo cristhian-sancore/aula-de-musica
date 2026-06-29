@@ -24,6 +24,7 @@ type LinkData = {
     whatsapp?: string;
     settings?: {
       cardTaxRate: number;
+      enrollmentFee?: number;
     }
   }
 };
@@ -89,12 +90,21 @@ export default function InvitePage() {
 
     const isCreditCard = selectedPaymentMethod.toLowerCase().includes("cartão") || selectedPaymentMethod.toLowerCase().includes("cartao");
     const taxRate = linkData.teacher.settings?.cardTaxRate || 0;
+    const enrollmentFee = (linkData.teacher.settings?.enrollmentFee !== undefined && linkData.teacher.settings?.enrollmentFee !== null) ? linkData.teacher.settings.enrollmentFee : 90;
+
+    let total = baseTotal;
+    
+    // Matrícula is added to the final cost if it's > 0
+    if (enrollmentFee > 0) {
+      total += enrollmentFee;
+    }
 
     if (isCreditCard && installments >= 4 && taxRate > 0) {
-      return baseTotal + (baseTotal * taxRate / 100);
+      // The tax rate is usually applied to the recurring payment, but we will apply it to the final total
+      total = total + (total * taxRate / 100);
     }
     
-    return baseTotal;
+    return total;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -273,27 +283,31 @@ export default function InvitePage() {
             
             <form onSubmit={handleSubmit} className="registration-form-container">
               
-              {/* TAXA DE MATRÍCULA (IMAGE 1) */}
-              <div className="stylish-card enrollment-fee-card">
-                <span className="card-label">MATRÍCULA</span>
-                <div className="fee-header">
-                  <span className="fee-subtitle">Investimento da Matrícula</span>
-                  <div className="plan-price-large">R$ 90,00</div>
+              {/* TAXA DE MATRÍCULA (IMAGE 1) - Only shown if fee > 0 */}
+              {((linkData.teacher.settings?.enrollmentFee !== undefined ? linkData.teacher.settings.enrollmentFee : 90) > 0) && (
+                <div className="stylish-card enrollment-fee-card">
+                  <span className="card-label">MATRÍCULA</span>
+                  <div className="fee-header">
+                    <span className="fee-subtitle">Investimento da Matrícula</span>
+                    <div className="plan-price-large">
+                      R$ {(linkData.teacher.settings?.enrollmentFee !== undefined ? linkData.teacher.settings.enrollmentFee : 90).toFixed(2)}
+                    </div>
+                  </div>
+                  
+                  <div className="fee-highlight">
+                    Pagamento exclusivamente via PIX ou Dinheiro
+                  </div>
+                  
+                  <h4 className="fee-includes-title">SUA MATRÍCULA INCLUI:</h4>
+                  <ul className="fee-includes-list">
+                    <li><Check size={18} className="text-primary" /> Reserva do horário</li>
+                    <li><Check size={18} className="text-primary" /> Cadastro</li>
+                    <li><Check size={18} className="text-primary" /> Planejamento individual</li>
+                    <li><Check size={18} className="text-primary" /> Organização pedagógica</li>
+                    <li><Check size={18} className="text-primary" /> Acompanhamento personalizado</li>
+                  </ul>
                 </div>
-                
-                <div className="fee-highlight">
-                  Pagamento exclusivamente via PIX ou Dinheiro
-                </div>
-                
-                <h4 className="fee-includes-title">SUA MATRÍCULA INCLUI:</h4>
-                <ul className="fee-includes-list">
-                  <li><Check size={18} className="text-primary" /> Reserva do horário</li>
-                  <li><Check size={18} className="text-primary" /> Cadastro</li>
-                  <li><Check size={18} className="text-primary" /> Planejamento individual</li>
-                  <li><Check size={18} className="text-primary" /> Organização pedagógica</li>
-                  <li><Check size={18} className="text-primary" /> Acompanhamento personalizado</li>
-                </ul>
-              </div>
+              )}
               
               {/* PLANO ESCOLHIDO CARD */}
               <div className="stylish-card">

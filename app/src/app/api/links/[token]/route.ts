@@ -22,6 +22,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ token: s
             settings: {
               select: {
                 cardTaxRate: true,
+                enrollmentFee: true,
               }
             }
           }
