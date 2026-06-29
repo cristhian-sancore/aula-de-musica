@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import "./layout.css";
 import Link from "next/link";
 import { BookOpen, LogOut, User } from "lucide-react";
+import { LogoutButton } from "@/components/LogoutButton";
 
 export default async function StudentLayout({
   children,
@@ -43,10 +44,7 @@ export default async function StudentLayout({
               <span>Aluno</span>
             </div>
           </div>
-          <Link href="/api/auth/signout" className="nav-link logout">
-            <LogOut size={20} />
-            <span>Sair</span>
-          </Link>
+          <LogoutButton />
         </div>
       </aside>
       
