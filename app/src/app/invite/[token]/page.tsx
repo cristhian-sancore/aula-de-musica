@@ -258,8 +258,35 @@ export default function InvitePage() {
                   >
                     {isSelected && <div className="selected-badge"><Check size={14} /> Selecionado</div>}
                     <h3 className="plan-title">{mod.title}</h3>
-                    <div className="plan-price">
-                      R$ {mod.price.toFixed(2)}
+                    <div className="plan-price-container">
+                      {(() => {
+                        let divisor = 12; // Padrão 12x
+                        const titleLower = mod.title.toLowerCase();
+                        if (titleLower.includes("mensal") || titleLower.includes("mês") || titleLower.includes("mes")) divisor = 1;
+                        else if (titleLower.includes("bimestral")) divisor = 2;
+                        else if (titleLower.includes("trimestral")) divisor = 3;
+                        else if (titleLower.includes("semestral")) divisor = 6;
+                        else if (titleLower.includes("anual")) divisor = 12;
+
+                        if (divisor > 1 && mod.price > 0) {
+                          return (
+                            <>
+                              <div className="plan-price-highlight">
+                                {divisor}x de R$ {(mod.price / divisor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </div>
+                              <div className="plan-price-cash">
+                                ou R$ {mod.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} à vista
+                              </div>
+                            </>
+                          );
+                        } else {
+                          return (
+                            <div className="plan-price-highlight">
+                              R$ {mod.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                          );
+                        }
+                      })()}
                     </div>
                     <p className="plan-desc">{mod.description || "Acesso completo às aulas e materiais deste módulo."}</p>
                     <button className={`btn-outline ${isSelected ? 'active' : ''}`}>
