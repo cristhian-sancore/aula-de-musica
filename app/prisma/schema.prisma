@@ -63,6 +63,7 @@ model Module {
   title       String
   description String?
   price       Float
+  isMonthly   Boolean      @default(false)
   teacherId   String
   teacher     User         @relation("TeacherModules", fields: [teacherId], references: [id])
   createdAt   DateTime     @default(now())

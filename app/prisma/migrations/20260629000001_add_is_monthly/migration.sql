@@ -1,0 +1,1 @@
+ALTER TABLE "Module" ADD COLUMN "isMonthly" BOOLEAN NOT NULL DEFAULT false;

@@ -16,6 +16,7 @@ type Module = {
   title: string;
   description: string;
   price: number;
+  isMonthly?: boolean;
   lessons: VideoLesson[];
 };
 
@@ -29,6 +30,7 @@ export default function ModulesPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [isMonthly, setIsMonthly] = useState(false);
   const [lessons, setLessons] = useState<VideoLesson[]>([]);
 
   async function fetchModules() {
@@ -56,11 +58,13 @@ export default function ModulesPage() {
       setTitle(mod.title);
       setDescription(mod.description || "");
       setPrice(mod.price.toString());
+      setIsMonthly(mod.isMonthly || false);
       setLessons(mod.lessons || []);
     } else {
       setTitle("");
       setDescription("");
       setPrice("");
+      setIsMonthly(false);
       setLessons([]);
     }
     setShowModal(true);
@@ -92,6 +96,7 @@ export default function ModulesPage() {
       title,
       description,
       price: parseFloat(price),
+      isMonthly,
       lessons,
     };
 
@@ -150,8 +155,9 @@ export default function ModulesPage() {
             <div key={mod.id} className="module-card">
               <div className="module-header">
                 <h3>{mod.title}</h3>
-                <span className="price">
-                  <DollarSign size={16} /> {mod.price.toFixed(2)}
+                <span className="price" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '0.9rem' }}>
+                  <span><DollarSign size={14} style={{display: 'inline', verticalAlign: 'middle'}}/> {mod.price.toFixed(2)}</span>
+                  {mod.isMonthly && <span style={{fontSize: '0.75rem', opacity: 0.8}}>Plano Mensal</span>}
                 </span>
               </div>
               <p className="description">{mod.description || "Sem descrição"}</p>
@@ -184,9 +190,22 @@ export default function ModulesPage() {
                 <input required className="input-field" value={title} onChange={e => setTitle(e.target.value)} />
               </div>
               
-              <div className="form-group">
-                <label>Preço (R$)</label>
-                <input required type="number" step="0.01" className="input-field" value={price} onChange={e => setPrice(e.target.value)} />
+              <div className="form-group" style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ flex: 1 }}>
+                  <label>Preço (R$)</label>
+                  <input required type="number" step="0.01" className="input-field" value={price} onChange={e => setPrice(e.target.value)} />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', paddingTop: '24px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px', margin: 0 }}>
+                    <input 
+                      type="checkbox" 
+                      checked={isMonthly} 
+                      onChange={e => setIsMonthly(e.target.checked)} 
+                      style={{ width: '18px', height: '18px' }}
+                    />
+                    <span>Este é um Plano Mensal (esconde parcelamento de 12x)</span>
+                  </label>
+                </div>
               </div>
 
               <div className="form-group">

@@ -10,6 +10,7 @@ type Module = {
   title: string;
   price: number;
   description: string;
+  isMonthly?: boolean;
 };
 
 type LinkData = {
@@ -270,7 +271,7 @@ export default function InvitePage() {
                     <div className="plan-price-container">
                       {(() => {
                         const divisor = 12; // Sempre dividir por 12, conforme solicitado pelo usuário
-                        const isMensal = mod.title.toLowerCase().includes('mensal');
+                        const isMensal = mod.isMonthly || mod.title.toLowerCase().includes('mensal'); // Fallback to title check for old modules
 
                         if (mod.price > 0) {
                           if (isMensal) {

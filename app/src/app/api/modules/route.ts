@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, description, price, lessons } = body;
+    const { title, description, price, isMonthly, lessons } = body;
 
     if (!title || price === undefined) {
       return NextResponse.json({ error: "Título e preço são obrigatórios" }, { status: 400 });
@@ -50,6 +50,7 @@ export async function POST(req: Request) {
         title,
         description,
         price: parseFloat(price),
+        isMonthly: Boolean(isMonthly),
         teacherId: session.user.id,
         lessons: {
           create: lessons?.map((lesson: { title: string; videoUrl: string }, index: number) => ({
