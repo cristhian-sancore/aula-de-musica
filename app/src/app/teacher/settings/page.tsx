@@ -10,7 +10,8 @@ type TeacherSettings = {
   defaultInstruments: string[];
   defaultPaymentMethods: string[];
   platformName: string;
-  showPriceAsMonthly: boolean;
+  showPriceAsMonthly?: boolean;
+  sumEnrollmentFee?: boolean;
   availableSlots: { day: number, time: string, endTime?: string, capacity: number }[] | null;
 };
 
@@ -34,6 +35,7 @@ export default function SettingsPage() {
     defaultPaymentMethods: [],
     platformName: "Aula de Música",
     showPriceAsMonthly: false,
+    sumEnrollmentFee: true,
     availableSlots: null,
   });
 
@@ -101,6 +103,7 @@ export default function SettingsPage() {
           defaultPaymentMethods: paymentsList,
           platformName: platformNameInput,
           showPriceAsMonthly,
+          sumEnrollmentFee: settings.sumEnrollmentFee,
           availableSlots: slots,
         }),
       });
@@ -206,6 +209,19 @@ export default function SettingsPage() {
                 />
               </div>
               <small className="help-text">Coloque 0 caso você não cobre taxa de matrícula. Este valor será exibido na página de pagamento do convite.</small>
+            </div>
+
+            <div className="form-group checkbox-group" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px', marginBottom: '24px' }}>
+              <input 
+                type="checkbox" 
+                id="sumEnrollmentFee"
+                checked={settings.sumEnrollmentFee !== false}
+                onChange={e => setSettings({...settings, sumEnrollmentFee: e.target.checked})}
+                style={{ width: '18px', height: '18px' }}
+              />
+              <label htmlFor="sumEnrollmentFee" style={{ margin: 0, fontWeight: 'normal', cursor: 'pointer' }}>
+                Somar a Taxa de Matrícula ao valor total do plano
+              </label>
             </div>
           </div>
 

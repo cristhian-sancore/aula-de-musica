@@ -122,7 +122,16 @@ export async function POST(req: Request) {
         const paymentText = paymentMethod ? `\nPagamento: ${paymentMethod}${installments ? ` em ${installments}x` : ''}` : '';
         
         const enrollmentFee = link.teacher?.settings?.enrollmentFee || 90;
-        const matriculaText = enrollmentFee > 0 ? `\nTaxa de Matrícula: R$ ${enrollmentFee.toFixed(2)} (À vista via PIX/Dinheiro)` : '';
+        const sumEnrollmentFee = link.teacher?.settings?.sumEnrollmentFee !== false;
+        
+        let matriculaText = "";
+        if (enrollmentFee > 0) {
+          if (sumEnrollmentFee) {
+            matriculaText = `\nTaxa de Matrícula: R$ ${enrollmentFee.toFixed(2)} (Somada ao valor do plano)`;
+          } else {
+            matriculaText = `\nTaxa de Matrícula: R$ ${enrollmentFee.toFixed(2)} (Paga separadamente)`;
+          }
+        }
         
         const mensagem = `*Nova Matrícula Solicitada!*\n\nO aluno *${name}* (${whatsapp}) acabou de se cadastrar através do seu link exclusivo.\n\nPlano Escolhido: *${planNames}*${matriculaText}${instrumentText}${paymentText}${horarioText}\n\nAcesse o painel para liberar o acesso assim que confirmar o pagamento.`;
 

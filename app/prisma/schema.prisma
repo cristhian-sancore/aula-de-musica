@@ -58,6 +58,7 @@ model TeacherSettings {
   defaultPaymentMethods String[] @default(["PIX", "Cartão de Crédito", "Boleto"])
   platformName          String   @default("Aula de Música")
   showPriceAsMonthly    Boolean  @default(false) // Se true, exibe R$ X/mês nos cards de plano
+  sumEnrollmentFee      Boolean  @default(true) // Se false, a taxa de matrícula não será somada ao valor final, apenas informada
   availableSlots        Json?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt

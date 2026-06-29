@@ -29,6 +29,7 @@ type LinkData = {
     settings?: {
       cardTaxRate: number;
       enrollmentFee?: number;
+      sumEnrollmentFee?: boolean;
       defaultPaymentMethods?: string[];
       showPriceAsMonthly?: boolean;
     }
@@ -139,11 +140,12 @@ export default function InvitePage() {
     const isCreditCard = selectedPaymentMethod.toLowerCase().includes("cartão") || selectedPaymentMethod.toLowerCase().includes("cartao");
     const taxRate = linkData.teacher.settings?.cardTaxRate || 0;
     const enrollmentFee = (linkData.teacher.settings?.enrollmentFee !== undefined && linkData.teacher.settings?.enrollmentFee !== null) ? linkData.teacher.settings.enrollmentFee : 90;
+    const sumEnrollmentFee = linkData.teacher.settings?.sumEnrollmentFee !== false;
 
     let total = baseTotal;
     
-    // Matrícula is added to the final cost if it's > 0
-    if (enrollmentFee > 0) {
+    // Matrícula is added to the final cost if it's > 0 AND sumEnrollmentFee is true
+    if (enrollmentFee > 0 && sumEnrollmentFee) {
       total += enrollmentFee;
     }
 
@@ -662,6 +664,11 @@ export default function InvitePage() {
                         {installments}x de R$ {(getSelectedTotal() / installments).toFixed(2)}
                       </div>
                     )}
+                    {linkData.teacher.settings?.enrollmentFee !== undefined && linkData.teacher.settings?.enrollmentFee > 0 && linkData.teacher.settings?.sumEnrollmentFee === false && (
+                      <div style={{ fontSize: '0.85em', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                        + Taxa de Matrícula (Paga à vista): R$ {linkData.teacher.settings.enrollmentFee.toFixed(2)}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -687,6 +694,18 @@ export default function InvitePage() {
             
             <div className="next-steps-card">
               <h3>Próximos Passos</h3>
+              <div className="total-box">
+                <div className="total-row">
+                  <span>Valor Final da Matrícula</span>
+                  <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(getSelectedTotal())}</span>
+                </div>
+                {linkData.teacher.settings?.enrollmentFee !== undefined && linkData.teacher.settings?.enrollmentFee > 0 && linkData.teacher.settings?.sumEnrollmentFee === false && (
+                  <div className="total-row" style={{ fontSize: '0.85em', color: 'var(--color-text-muted)', marginTop: '8px', borderTop: 'none', paddingTop: 0 }}>
+                    <span>+ Taxa de Matrícula (Paga à vista separadamente)</span>
+                    <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(linkData.teacher.settings.enrollmentFee)}</span>
+                  </div>
+                )}
+              </div>
               <div className="numbered-steps">
                 <div className="num-step">
                   <div className="num-circle">1</div>
