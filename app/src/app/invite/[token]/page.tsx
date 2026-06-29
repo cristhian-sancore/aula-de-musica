@@ -270,8 +270,22 @@ export default function InvitePage() {
                     <div className="plan-price-container">
                       {(() => {
                         const divisor = 12; // Sempre dividir por 12, conforme solicitado pelo usuário
+                        const isMensal = mod.title.toLowerCase().includes('mensal');
 
                         if (mod.price > 0) {
+                          if (isMensal) {
+                            return (
+                              <>
+                                <div className="plan-price-highlight" style={{ fontSize: '1.8rem' }}>
+                                  R$ {mod.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </div>
+                                <div className="plan-price-cash">
+                                  por mês
+                                </div>
+                              </>
+                            );
+                          }
+
                           return (
                             <>
                               <div className="plan-price-highlight">
