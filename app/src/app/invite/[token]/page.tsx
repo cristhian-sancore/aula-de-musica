@@ -656,7 +656,7 @@ export default function InvitePage() {
 
               {selectedPaymentMethod && (
                 <div className="summary-total" style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--color-border)' }}>
-                  <span>Valor Final da Matrícula</span>
+                  <span>Investimento final</span>
                   <div style={{ textAlign: 'right' }}>
                     <strong style={{ fontSize: '1.25rem' }}>R$ {getSelectedTotal().toFixed(2)}</strong>
                     {(selectedPaymentMethod.toLowerCase().includes("cartão") || selectedPaymentMethod.toLowerCase().includes("cartao")) && installments > 1 && (
@@ -666,7 +666,7 @@ export default function InvitePage() {
                     )}
                     {linkData.teacher.settings?.enrollmentFee !== undefined && linkData.teacher.settings?.enrollmentFee > 0 && linkData.teacher.settings?.sumEnrollmentFee === false && (
                       <div style={{ fontSize: '0.85em', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                        + Taxa de Matrícula (Paga à vista): R$ {linkData.teacher.settings.enrollmentFee.toFixed(2)}
+                        + Matrícula (Paga à vista): R$ {linkData.teacher.settings.enrollmentFee.toFixed(2)}
                       </div>
                     )}
                   </div>
@@ -696,12 +696,12 @@ export default function InvitePage() {
               <h3>Próximos Passos</h3>
               <div className="total-box">
                 <div className="total-row">
-                  <span>Valor Final da Matrícula</span>
+                  <span>Investimento final</span>
                   <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(getSelectedTotal())}</span>
                 </div>
                 {linkData.teacher.settings?.enrollmentFee !== undefined && linkData.teacher.settings?.enrollmentFee > 0 && linkData.teacher.settings?.sumEnrollmentFee === false && (
                   <div className="total-row" style={{ fontSize: '0.85em', color: 'var(--color-text-muted)', marginTop: '8px', borderTop: 'none', paddingTop: 0 }}>
-                    <span>+ Taxa de Matrícula (Paga à vista separadamente)</span>
+                    <span>+ Matrícula (Paga à vista)</span>
                     <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(linkData.teacher.settings.enrollmentFee)}</span>
                   </div>
                 )}
