@@ -29,6 +29,18 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: "Aluno não encontrado ou inválido" }, { status: 404 });
     }
 
+    // Verify if the student belongs to at least one module taught by this teacher
+    const enrollmentCount = await prisma.enrollment.count({
+      where: {
+        studentId: studentId,
+        module: { teacherId: session.user.id }
+      }
+    });
+
+    if (enrollmentCount === 0) {
+      return NextResponse.json({ error: "Sem permissão para alterar a senha deste aluno" }, { status: 403 });
+    }
+
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Update user password

@@ -71,7 +71,9 @@ export async function POST(req: Request) {
         content
       },
       include: {
-        student: true,
+        student: {
+          select: { id: true, name: true, email: true, whatsapp: true, image: true }
+        },
         lesson: true
       }
     });

@@ -18,7 +18,9 @@ export async function GET() {
         }
       },
       include: {
-        student: true,
+        student: {
+          select: { id: true, name: true, email: true, whatsapp: true, image: true }
+        },
         module: true
       },
       orderBy: {

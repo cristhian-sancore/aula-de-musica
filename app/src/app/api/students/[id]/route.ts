@@ -22,6 +22,18 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
       return NextResponse.json({ error: "Aluno não encontrado ou inválido" }, { status: 404 });
     }
 
+    // Verify if the student belongs to at least one module taught by this teacher
+    const enrollmentCount = await prisma.enrollment.count({
+      where: {
+        studentId: studentId,
+        module: { teacherId: session.user.id }
+      }
+    });
+
+    if (enrollmentCount === 0) {
+      return NextResponse.json({ error: "Sem permissão para gerenciar ou excluir este aluno" }, { status: 403 });
+    }
+
     // Delete enrollments first
     await prisma.enrollment.deleteMany({
       where: { studentId: studentId }
