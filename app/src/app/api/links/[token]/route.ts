@@ -27,6 +27,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ token: s
                 availableSlots: true,
                 defaultPaymentMethods: true,
                 showPriceAsMonthly: true,
+                sumEnrollmentFee: true,
               }
             }
           }
