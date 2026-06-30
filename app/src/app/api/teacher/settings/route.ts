@@ -27,7 +27,7 @@ export async function GET() {
 
     return NextResponse.json({
       ...settings,
-      inviteBaseUrl: process.env.NEXT_PUBLIC_INVITE_BASE_URL || null
+      inviteBaseUrl: process.env['NEXT_PUBLIC_INVITE_BASE_URL'] || process.env['INVITE_BASE_URL'] || null
     });
   } catch (error) {
     console.error("Erro ao buscar configurações do professor:", error);
