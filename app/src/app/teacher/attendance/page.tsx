@@ -80,7 +80,7 @@ export default function AttendancePage() {
 
     try {
       const res = await fetch(`/api/teacher/attendance/${selectedSchedule.id}`, {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status, observation })
       });
