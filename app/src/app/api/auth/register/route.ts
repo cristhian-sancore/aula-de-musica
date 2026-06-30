@@ -93,8 +93,9 @@ export async function POST(req: Request) {
 
     // 6. Direct WhatsApp Integration (Notificar Professor)
     try {
-      const EVOLUTION_API_URL = "https://api-2.cristhiansancore.com.br";
-      const EVOLUTION_API_KEY = "seu_token_global_evolution";
+      const rawUrl = process.env.WHATSAPP_API_URL || "http://evolution-api_aula:8080";
+      const EVOLUTION_API_URL = rawUrl.startsWith("http") ? new URL(rawUrl).origin : "http://evolution-api_aula:8080";
+      const EVOLUTION_API_KEY = process.env.WHATSAPP_API_TOKEN || "seu_token_global_evolution";
       
       const instanceName = `teacher_${link.teacherId}`;
       const evolutionEndpoint = `${EVOLUTION_API_URL}/message/sendText/${instanceName}`;

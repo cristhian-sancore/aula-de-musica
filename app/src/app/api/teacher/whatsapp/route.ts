@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-const EVOLUTION_API_URL = "https://api-2.cristhiansancore.com.br";
-const EVOLUTION_API_KEY = "seu_token_global_evolution";
+const rawUrl = process.env.WHATSAPP_API_URL || "http://evolution-api_aula:8080";
+const EVOLUTION_API_URL = rawUrl.startsWith("http") ? new URL(rawUrl).origin : "http://evolution-api_aula:8080";
+const EVOLUTION_API_KEY = process.env.WHATSAPP_API_TOKEN || "seu_token_global_evolution";
 
 // Função utilitária para pegar o nome da instância baseada no ID do professor
 const getInstanceName = (teacherId: string) => `teacher_${teacherId}`;
