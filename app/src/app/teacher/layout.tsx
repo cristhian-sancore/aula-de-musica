@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import "./layout.css";
 import Link from "next/link";
-import { BookOpen, Users, LayoutDashboard, Link as LinkIcon, LogOut, Settings, User, MessageSquare, Music } from "lucide-react";
+import { BookOpen, Users, LayoutDashboard, Link as LinkIcon, LogOut, Settings, User, MessageSquare, Music, MessageCircle } from "lucide-react";
 import { LogoutButton } from "@/components/LogoutButton";
 
 export default async function TeacherLayout({
@@ -53,6 +53,10 @@ export default async function TeacherLayout({
           <Link href="/teacher/profile" className="nav-link">
             <User size={20} />
             <span>Meu Perfil</span>
+          </Link>
+          <Link href="/teacher/whatsapp" className="nav-link">
+            <MessageCircle size={20} />
+            <span>WhatsApp (Bot)</span>
           </Link>
           <Link href="/teacher/settings" className="nav-link">
             <Settings size={20} />
