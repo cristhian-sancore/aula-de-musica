@@ -91,9 +91,15 @@ export async function GET() {
       orderBy: { date: "desc" }
     });
 
+    const teacherUser = await prisma.user.findUnique({
+      where: { id: teacherId },
+      select: { image: true }
+    });
+
     return NextResponse.json({
       platformName: settings?.platformName || "Aula de Música 2.0",
       teacherName: session.user.name,
+      teacherImage: teacherUser?.image || session.user.image || null,
       students,
       invoices,
       schedules

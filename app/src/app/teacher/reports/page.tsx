@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import { FileText, Users, DollarSign, CalendarCheck, Download, Filter } from "lucide-react";
+import { FileText, Users, DollarSign, CalendarCheck, Download } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import "./reports.css";
@@ -66,6 +66,7 @@ export default function ReportsPage() {
   
   const [platformName, setPlatformName] = useState("Aula de Música 2.0");
   const [teacherName, setTeacherName] = useState("Professor");
+  const [teacherImage, setTeacherImage] = useState<string | null>(null);
   const [students, setStudents] = useState<StudentReport[]>([]);
   const [invoices, setInvoices] = useState<InvoiceReport[]>([]);
   const [schedules, setSchedules] = useState<ScheduleReport[]>([]);
@@ -81,6 +82,7 @@ export default function ReportsPage() {
           const data = await res.json();
           setPlatformName(data.platformName || "Aula de Música 2.0");
           setTeacherName(data.teacherName || "Professor");
+          setTeacherImage(data.teacherImage || null);
           setStudents(data.students || []);
           setInvoices(data.invoices || []);
           setSchedules(data.schedules || []);
@@ -105,9 +107,41 @@ export default function ReportsPage() {
     return enc.horario || "Não definido";
   };
 
+  // ================= GERAÇÃO DE LOGO =================
+  const getLogoBase64 = async (): Promise<string | null> => {
+    if (teacherImage && teacherImage.startsWith("data:image")) {
+      return teacherImage;
+    }
+    try {
+      const url = teacherImage || "/logo.png";
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return null;
+    }
+  };
+
+  const addLogoToDoc = async (doc: jsPDF) => {
+    const logoData = await getLogoBase64();
+    if (logoData) {
+      try {
+        const formatImg = logoData.includes("png") ? "PNG" : "JPEG";
+        doc.addImage(logoData, formatImg, 460, 25, 75, 75);
+      } catch (e) {
+        console.error("Erro ao desenhar logo no PDF:", e);
+      }
+    }
+  };
+
   // ================= GERAÇÃO DE PDF =================
 
-  const generateStudentsPDF = () => {
+  const generateStudentsPDF = async () => {
     const doc = new jsPDF("p", "pt", "a4");
 
     // Cabeçalho
@@ -124,6 +158,8 @@ export default function ReportsPage() {
     doc.setFontSize(10);
     doc.setTextColor(100, 116, 139);
     doc.text(`Professor(a): ${teacherName}  |  Emissão: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm")}`, 40, 90);
+
+    await addLogoToDoc(doc);
 
     const filteredStudents = students.filter(s => {
       if (statusFilter === "ALL") return true;
@@ -145,19 +181,19 @@ export default function ReportsPage() {
     });
 
     autoTable(doc, {
-      startY: 110,
+      startY: 115,
       head: [["Nome do Aluno", "WhatsApp", "Instrumento", "Módulo / Plano", "Horário / Aula", "Status"]],
       body: rows,
       theme: "striped",
       headStyles: { fillColor: [218, 123, 26], textColor: 255, fontStyle: "bold" },
       styles: { fontSize: 9, cellPadding: 6 },
-      margin: { top: 110, left: 40, right: 40 }
+      margin: { top: 115, left: 40, right: 40 }
     });
 
     doc.save(`Relatorio_Alunos_${format(new Date(), "yyyy-MM-dd")}.pdf`);
   };
 
-  const generateFinancialPDF = () => {
+  const generateFinancialPDF = async () => {
     const doc = new jsPDF("p", "pt", "a4");
 
     doc.setFont("helvetica", "bold");
@@ -174,6 +210,8 @@ export default function ReportsPage() {
     doc.setTextColor(100, 116, 139);
     doc.text(`Emissão: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm")}`, 40, 90);
 
+    await addLogoToDoc(doc);
+
     const filteredInvoices = invoices.filter(inv => {
       if (statusFilter === "ALL") return true;
       return inv.status === statusFilter;
@@ -184,9 +222,9 @@ export default function ReportsPage() {
 
     doc.setFont("helvetica", "bold");
     doc.setTextColor(16, 185, 129);
-    doc.text(`Total Recebido: ${formatCurrency(totalPaid)}`, 40, 110);
+    doc.text(`Total Recebido: ${formatCurrency(totalPaid)}`, 40, 115);
     doc.setTextColor(245, 158, 11);
-    doc.text(`Total Pendente: ${formatCurrency(totalPending)}`, 240, 110);
+    doc.text(`Total Pendente: ${formatCurrency(totalPending)}`, 240, 115);
 
     const rows = filteredInvoices.map(inv => [
       inv.student.name,
@@ -198,19 +236,19 @@ export default function ReportsPage() {
     ]);
 
     autoTable(doc, {
-      startY: 125,
+      startY: 130,
       head: [["Aluno", "Referência", "Vencimento", "Valor", "Status", "Data Pagto"]],
       body: rows,
       theme: "grid",
       headStyles: { fillColor: [30, 41, 59], textColor: 255, fontStyle: "bold" },
       styles: { fontSize: 9, cellPadding: 6 },
-      margin: { top: 125, left: 40, right: 40 }
+      margin: { top: 130, left: 40, right: 40 }
     });
 
     doc.save(`Relatorio_Financeiro_${format(new Date(), "yyyy-MM-dd")}.pdf`);
   };
 
-  const generateAttendancePDF = () => {
+  const generateAttendancePDF = async () => {
     const doc = new jsPDF("p", "pt", "a4");
 
     doc.setFont("helvetica", "bold");
@@ -227,6 +265,8 @@ export default function ReportsPage() {
     doc.setTextColor(100, 116, 139);
     doc.text(`Emissão: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm")}`, 40, 90);
 
+    await addLogoToDoc(doc);
+
     const rows = schedules.map(sch => {
       let statusText = "Pendente";
       if (sch.attendance?.status === "PRESENT") statusText = "Presente";
@@ -242,13 +282,13 @@ export default function ReportsPage() {
     });
 
     autoTable(doc, {
-      startY: 110,
+      startY: 115,
       head: [["Data/Hora da Aula", "Aluno", "Status da Chamada", "Observações"]],
       body: rows,
       theme: "striped",
       headStyles: { fillColor: [79, 70, 229], textColor: 255, fontStyle: "bold" },
       styles: { fontSize: 9, cellPadding: 6 },
-      margin: { top: 110, left: 40, right: 40 }
+      margin: { top: 115, left: 40, right: 40 }
     });
 
     doc.save(`Relatorio_Chamada_${format(new Date(), "yyyy-MM-dd")}.pdf`);
@@ -303,7 +343,7 @@ export default function ReportsPage() {
                 <option value="ACTIVE">Apenas Ativos</option>
                 <option value="PENDING_PAYMENT">Apenas Pendentes</option>
               </select>
-              <button className="btn-pdf" onClick={generateStudentsPDF}>
+              <button className="btn-pdf" onClick={() => void generateStudentsPDF()}>
                 <Download size={18} /> Baixar Relatório em PDF
               </button>
             </div>
@@ -376,7 +416,7 @@ export default function ReportsPage() {
                 <option value="PENDING">Pendentes</option>
                 <option value="OVERDUE">Atrasadas</option>
               </select>
-              <button className="btn-pdf" onClick={generateFinancialPDF}>
+              <button className="btn-pdf" onClick={() => void generateFinancialPDF()}>
                 <Download size={18} /> Baixar Financeiro em PDF
               </button>
             </div>
@@ -445,7 +485,7 @@ export default function ReportsPage() {
               <h3>Relatório do Diário de Chamada</h3>
               <p>Histórico recente de aulas agendadas e chamadas realizadas.</p>
             </div>
-            <button className="btn-pdf" onClick={generateAttendancePDF}>
+            <button className="btn-pdf" onClick={() => void generateAttendancePDF()}>
               <Download size={18} /> Baixar Frequência em PDF
             </button>
           </div>
