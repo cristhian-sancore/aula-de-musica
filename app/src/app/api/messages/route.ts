@@ -79,26 +79,32 @@ export async function POST(req: Request) {
     });
 
     // Enviar notificação de WhatsApp para o professor
-    const WHATSAPP_API_URL = process.env.WHATSAPP_API_URL;
-    const WHATSAPP_API_TOKEN = process.env.WHATSAPP_API_TOKEN;
+    const EVOLUTION_API_URL = "https://api-2.cristhiansancore.com.br";
+    const EVOLUTION_API_KEY = "seu_token_global_evolution";
+    
+    // Agora geramos a URL baseada na instância do professor
+    const instanceName = `teacher_${session.user.id}`;
+    const evolutionEndpoint = `${EVOLUTION_API_URL}/message/sendText/${instanceName}`;
     const TEACHER_WHATSAPP = process.env.TEACHER_WHATSAPP;
 
-    if (WHATSAPP_API_URL && WHATSAPP_API_TOKEN && TEACHER_WHATSAPP) {
+    if (TEACHER_WHATSAPP) {
       const notifyMsg = `*Nova Dúvida na Plataforma!* 🙋‍♂️\n\nO aluno *${message.student.name}* enviou uma dúvida na aula *"${message.lesson.title}"*:\n\n_"${content}"_\n\nAcesse o seu painel de professor na aba de Mensagens para responder!`;
+      console.log(`Enviando mensagem para: ${TEACHER_WHATSAPP}`);
 
-      await fetch(WHATSAPP_API_URL, {
+      await fetch(evolutionEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${WHATSAPP_API_TOKEN}`,
-          "apikey": WHATSAPP_API_TOKEN 
+          "apikey": EVOLUTION_API_KEY
         },
         body: JSON.stringify({
           number: TEACHER_WHATSAPP,
-          text: notifyMsg,
-          message: notifyMsg
+          text: notifyMsg
         })
       }).catch(e => console.error("Erro ao notificar professor no whatsapp", e));
+      console.log("Notificação via WhatsApp enviada!");
+    } else {
+      console.log("Telefone do professor não configurado no .env");
     }
 
     return NextResponse.json(message);

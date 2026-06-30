@@ -93,11 +93,15 @@ export async function POST(req: Request) {
 
     // 6. Direct WhatsApp Integration (Notificar Professor)
     try {
-      const WHATSAPP_API_URL = process.env.WHATSAPP_API_URL;
-      const WHATSAPP_API_TOKEN = process.env.WHATSAPP_API_TOKEN;
+      const EVOLUTION_API_URL = "https://api-2.cristhiansancore.com.br";
+      const EVOLUTION_API_KEY = "seu_token_global_evolution";
+      
+      const instanceName = `teacher_${link.teacherId}`;
+      const evolutionEndpoint = `${EVOLUTION_API_URL}/message/sendText/${instanceName}`;
+      
       const TEACHER_WHATSAPP = process.env.TEACHER_WHATSAPP; 
 
-      if (WHATSAPP_API_URL && WHATSAPP_API_TOKEN && TEACHER_WHATSAPP) {
+      if (TEACHER_WHATSAPP) {
         // Fetch module names to show in the message
         const selectedModulesData = await prisma.module.findMany({
           where: { id: { in: selectedModules } },
@@ -135,17 +139,15 @@ export async function POST(req: Request) {
         
         const mensagem = `*Nova Matrícula Solicitada!*\n\nO aluno *${name}* (${whatsapp}) acabou de se cadastrar através do seu link exclusivo.\n\nPlano Escolhido: *${planNames}*${matriculaText}${instrumentText}${paymentText}${horarioText}\n\nAcesse o painel para liberar o acesso assim que confirmar o pagamento.`;
 
-        await fetch(WHATSAPP_API_URL, {
+        await fetch(evolutionEndpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${WHATSAPP_API_TOKEN}`,
-            "apikey": WHATSAPP_API_TOKEN // Evolution API exige "apikey"
+            "apikey": EVOLUTION_API_KEY
           },
           body: JSON.stringify({
             number: TEACHER_WHATSAPP,
-            text: mensagem, // Evolution API (e a maioria das APIs) usa "text"
-            message: mensagem // Fallback caso seja outra API (como Z-API)
+            text: mensagem
           })
         });
         console.log("Notificação de WhatsApp enviada ao professor.");
@@ -159,17 +161,15 @@ export async function POST(req: Request) {
         
         if (studentPhoneStr) {
            const studentMsg = `Olá, *${name}*! 🎵\n\nRecebemos a sua solicitação de reserva de vaga para as aulas de música.\n\n✅ *O professor já foi notificado!*\n\nEm breve ele entrará em contato por aqui mesmo para confirmar os horários disponíveis e as instruções de pagamento.\n\nFique de olho! 👀`;
-           await fetch(WHATSAPP_API_URL, {
+           await fetch(evolutionEndpoint, {
              method: "POST",
              headers: {
                "Content-Type": "application/json",
-               "Authorization": `Bearer ${WHATSAPP_API_TOKEN}`,
-               "apikey": WHATSAPP_API_TOKEN 
+               "apikey": EVOLUTION_API_KEY 
              },
              body: JSON.stringify({
                number: studentPhoneStr,
-               text: studentMsg,
-               message: studentMsg
+               text: studentMsg
              })
            });
            console.log("Notificação de WhatsApp enviada ao aluno.");
