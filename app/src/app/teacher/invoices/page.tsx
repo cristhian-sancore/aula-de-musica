@@ -59,7 +59,7 @@ export default function InvoicesPage() {
 
   async function fetchStudents() {
     try {
-      const res = await fetch("/api/students");
+      const res = await fetch("/api/teacher/students");
       if (res.ok) {
         const data = await res.json();
         setStudents(data);
