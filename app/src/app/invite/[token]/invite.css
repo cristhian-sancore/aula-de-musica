@@ -375,6 +375,7 @@
   line-height: 1.6;
   margin-bottom: 24px;
   flex: 1;
+  white-space: pre-wrap;
 }
 
 .btn-outline {
