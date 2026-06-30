@@ -6,6 +6,7 @@ import "./profile.css";
 export default function ProfilePage() {
   const [name, setName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -38,11 +39,12 @@ export default function ProfilePage() {
       const res = await fetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, whatsapp, newPassword })
+        body: JSON.stringify({ name, whatsapp, currentPassword, newPassword })
       });
 
       if (res.ok) {
         setMessage({ text: "Perfil atualizado com sucesso!", type: "success" });
+        setCurrentPassword("");
         setNewPassword(""); // Clear password field
       } else {
         const err = await res.json();
@@ -88,13 +90,24 @@ export default function ProfilePage() {
           <hr className="divider" />
 
           <div className="form-group">
+            <label>Senha Atual (obrigatória para alterar a senha)</label>
+            <input 
+              type="password" 
+              className="input-field" 
+              value={currentPassword} 
+              onChange={e => setCurrentPassword(e.target.value)} 
+              placeholder="Digite sua senha atual"
+            />
+          </div>
+
+          <div className="form-group">
             <label>Nova Senha (opcional)</label>
             <input 
               type="password" 
               className="input-field" 
               value={newPassword} 
               onChange={e => setNewPassword(e.target.value)} 
-              placeholder="Digite apenas se quiser alterar"
+              placeholder="Mínimo 6 caracteres"
               minLength={6}
             />
           </div>

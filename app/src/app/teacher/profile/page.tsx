@@ -13,6 +13,7 @@ export default function TeacherProfile() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [image, setImage] = useState("");
   
@@ -60,7 +61,10 @@ export default function TeacherProfile() {
 
     try {
       const payload: any = { name, email, whatsapp, image };
-      if (newPassword) payload.newPassword = newPassword;
+      if (newPassword || currentPassword) {
+        payload.newPassword = newPassword;
+        payload.currentPassword = currentPassword;
+      }
 
       const res = await fetch("/api/user/profile", {
         method: "PUT",
@@ -70,6 +74,7 @@ export default function TeacherProfile() {
 
       if (res.ok) {
         alert("Perfil atualizado com sucesso! Faça login novamente para atualizar sua foto na barra lateral se tiver modificado.");
+        setCurrentPassword("");
         setNewPassword("");
         router.refresh(); 
       } else {
@@ -164,13 +169,24 @@ export default function TeacherProfile() {
             </div>
 
             <div className="form-group">
+              <label><Lock size={16} /> Senha Atual (Obrigatória se alterar senha)</label>
+              <input 
+                type="password"
+                className="input-field" 
+                value={currentPassword} 
+                onChange={e => setCurrentPassword(e.target.value)} 
+                placeholder="Sua senha atual"
+              />
+            </div>
+
+            <div className="form-group">
               <label><Lock size={16} /> Nova Senha (Opcional)</label>
               <input 
                 type="password"
                 className="input-field" 
                 value={newPassword} 
                 onChange={e => setNewPassword(e.target.value)} 
-                placeholder="Digite para alterar"
+                placeholder="Mínimo de 6 caracteres"
                 minLength={6}
               />
             </div>
