@@ -58,9 +58,19 @@ export async function POST(req: Request) {
       });
     }
 
+    // Decodificar horário se estiver no formato dia-hora (ex: 1-14-15)
+    let dayOfWeekVal: number | null = null;
+    let classTimeVal: string | null = null;
+    if (horario && typeof horario === "string") {
+      const parts = horario.split("-");
+      if (parts.length >= 2 && !isNaN(Number(parts[0]))) {
+        dayOfWeekVal = Number(parts[0]);
+        classTimeVal = `${parts[1].padStart(2, '0')}:00`;
+      }
+    }
+
     // 4. Create enrollments (PENDING_PAYMENT)
     for (const moduleId of selectedModules) {
-      // Use upsert or check to avoid duplicate enrollments
       await prisma.enrollment.upsert({
         where: {
           studentId_moduleId: {
@@ -78,12 +88,60 @@ export async function POST(req: Request) {
           installments: installments ? parseInt(installments, 10) : 1,
           responsavel: responsavel || null,
           horario: horario || null,
+          dayOfWeek: dayOfWeekVal,
+          classTime: classTimeVal,
           cidade: cidade || null,
           conheceu: conheceu || null,
           observacoes: observacoes || null
         }
       });
     }
+
+    // 4.1 Criar fatura no Financeiro (Contas a Receber) automaticamente
+    const modulesData = await prisma.module.findMany({
+      where: { id: { in: selectedModules } }
+    });
+    const totalModulesPrice = modulesData.reduce((acc, m) => acc + (m.price || 0), 0);
+    const fee = link.teacher?.settings?.enrollmentFee || 90;
+    const sumFee = link.teacher?.settings?.sumEnrollmentFee !== false;
+    const invoiceAmount = totalModulesPrice + (fee > 0 && sumFee ? fee : 0);
+
+    if (invoiceAmount > 0) {
+      const now = new Date();
+      await prisma.invoice.create({
+        data: {
+          studentId: user.id,
+          amount: invoiceAmount,
+          status: "PENDING",
+          dueDate: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000), // Vencimento padrão em 3 dias
+          month: now.getMonth() + 1,
+          year: now.getFullYear()
+        }
+      });
+    }
+
+    // 4.2 Preencher automaticamente a Agenda do Professor (Presencial)
+    const targetDate = new Date();
+    if (dayOfWeekVal !== null) {
+      const currentDay = targetDate.getDay();
+      let diff = dayOfWeekVal - currentDay;
+      if (diff < 0) diff += 7;
+      targetDate.setDate(targetDate.getDate() + diff);
+      if (classTimeVal) {
+        const [hh, mm] = classTimeVal.split(":");
+        targetDate.setHours(Number(hh), Number(mm), 0, 0);
+      }
+    } else {
+      targetDate.setHours(14, 0, 0, 0);
+    }
+    await prisma.classSchedule.create({
+      data: {
+        teacherId: link.teacherId,
+        studentId: user.id,
+        date: targetDate,
+        status: "SCHEDULED"
+      }
+    });
 
     // 5. Update link status to USED
     await prisma.customLink.update({

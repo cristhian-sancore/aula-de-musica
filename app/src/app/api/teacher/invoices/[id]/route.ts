@@ -39,6 +39,17 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       data
     });
 
+    // Se deu baixa no pagamento (PAID), liberar automaticamente o acesso no painel do aluno
+    if (status === "PAID") {
+      await prisma.enrollment.updateMany({
+        where: {
+          studentId: existingInvoice.studentId,
+          status: "PENDING_PAYMENT"
+        },
+        data: { status: "ACTIVE" }
+      });
+    }
+
     return NextResponse.json(invoice);
   } catch (error) {
     console.error("Erro ao atualizar fatura:", error);

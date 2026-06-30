@@ -112,7 +112,7 @@ export default function AttendancePage() {
           {schedules.map(schedule => {
             const hasAttendance = !!schedule.attendance;
             const isPresent = schedule.attendance?.status === "PRESENT";
-            const isAbsent = schedule.attendance?.status === "ABSENT" || schedule.attendance?.status === "JUSTIFIED_ABSENCE";
+            const isAbsent = schedule.attendance?.status === "ABSENT" || schedule.attendance?.status === "JUSTIFIED";
             
             return (
               <div key={schedule.id} className={`attendance-card ${hasAttendance ? 'completed' : 'pending'}`} onClick={() => openAttendanceModal(schedule)}>
@@ -132,7 +132,7 @@ export default function AttendancePage() {
                   ) : isPresent ? (
                     <span className="badge present"><CheckCircle size={14} /> Presente</span>
                   ) : (
-                    <span className="badge absent"><XCircle size={14} /> Falta {schedule.attendance?.status === "JUSTIFIED_ABSENCE" ? "(Justificada)" : ""}</span>
+                    <span className="badge absent"><XCircle size={14} /> Falta {schedule.attendance?.status === "JUSTIFIED" ? "(Justificada)" : ""}</span>
                   )}
                 </div>
               </div>
@@ -177,12 +177,12 @@ export default function AttendancePage() {
                     />
                     Faltou
                   </label>
-                  <label className={`status-option ${status === "JUSTIFIED_ABSENCE" ? 'selected' : ''}`}>
+                  <label className={`status-option ${status === "JUSTIFIED" ? 'selected' : ''}`}>
                     <input 
                       type="radio" 
                       name="status" 
-                      value="JUSTIFIED_ABSENCE" 
-                      checked={status === "JUSTIFIED_ABSENCE"}
+                      value="JUSTIFIED" 
+                      checked={status === "JUSTIFIED"}
                       onChange={(e) => setStatus(e.target.value)}
                     />
                     Falta Justificada

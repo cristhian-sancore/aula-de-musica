@@ -19,9 +19,74 @@ export async function GET(request: Request) {
     };
 
     if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      // Auto-preenchimento presencial: buscar alunos matriculados no professor para gerar aulas automaticamente
+      const enrollments = await prisma.enrollment.findMany({
+        where: {
+          module: { teacherId: session.user.id },
+          status: { in: ['ACTIVE', 'PENDING_PAYMENT'] }
+        },
+        include: { student: true }
+      });
+
+      for (const enc of enrollments) {
+        let dayOfWeekVal: number | null = enc.dayOfWeek;
+        let classTimeVal: string | null = enc.classTime;
+
+        if (dayOfWeekVal === null && enc.horario) {
+          const parts = enc.horario.split("-");
+          if (parts.length >= 2 && !isNaN(Number(parts[0]))) {
+            dayOfWeekVal = Number(parts[0]);
+            classTimeVal = `${parts[1].padStart(2, '0')}:00`;
+          }
+        }
+
+        if (dayOfWeekVal !== null) {
+          const current = new Date(start);
+          while (current <= end) {
+            if (current.getDay() === dayOfWeekVal) {
+              const scheduleDate = new Date(current);
+              if (classTimeVal) {
+                const [hh, mm] = classTimeVal.split(":");
+                scheduleDate.setHours(Number(hh), Number(mm), 0, 0);
+              } else {
+                scheduleDate.setHours(14, 0, 0, 0);
+              }
+
+              const dayStart = new Date(scheduleDate);
+              dayStart.setHours(0, 0, 0, 0);
+              const dayEnd = new Date(scheduleDate);
+              dayEnd.setHours(23, 59, 59, 999);
+
+              const exists = await prisma.classSchedule.findFirst({
+                where: {
+                  teacherId: session.user.id,
+                  studentId: enc.studentId,
+                  date: { gte: dayStart, lte: dayEnd }
+                }
+              });
+
+              if (!exists) {
+                await prisma.classSchedule.create({
+                  data: {
+                    teacherId: session.user.id,
+                    studentId: enc.studentId,
+                    date: scheduleDate,
+                    status: 'SCHEDULED'
+                  }
+                });
+              }
+            }
+            current.setDate(current.getDate() + 1);
+          }
+        }
+      }
+
       where.date = {
-        gte: new Date(startDate),
-        lte: new Date(endDate)
+        gte: start,
+        lte: end
       };
     }
 
