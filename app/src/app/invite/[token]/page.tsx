@@ -95,7 +95,6 @@ export default function InvitePage() {
 
   useEffect(() => {
     if (params.token) {
-      // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
       void fetchLinkData(params.token as string);
     }
   }, [params.token]);

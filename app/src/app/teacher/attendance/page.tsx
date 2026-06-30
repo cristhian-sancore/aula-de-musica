@@ -32,10 +32,6 @@ export default function AttendancePage() {
   const [status, setStatus] = useState("PRESENT");
   const [observation, setObservation] = useState("");
 
-  useEffect(() => {
-    fetchPendingSchedules();
-  }, []);
-
   const fetchPendingSchedules = async () => {
     setLoading(true);
     try {
@@ -48,7 +44,7 @@ export default function AttendancePage() {
       
       const res = await fetch(`/api/teacher/calendar?startDate=${thirtyDaysAgo.toISOString()}&endDate=${today.toISOString()}`);
       if (res.ok) {
-        let data: ClassSchedule[] = await res.json();
+        const data: ClassSchedule[] = await res.json();
         
         // Sort newest first
         data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -61,6 +57,10 @@ export default function AttendancePage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchPendingSchedules();
+  }, []);
 
   const openAttendanceModal = (schedule: ClassSchedule) => {
     setSelectedSchedule(schedule);

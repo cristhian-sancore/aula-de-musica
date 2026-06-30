@@ -18,10 +18,6 @@ export default function TeacherProfile() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
   async function fetchProfile() {
     try {
       const res = await fetch("/api/user/profile");
@@ -38,6 +34,10 @@ export default function TeacherProfile() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

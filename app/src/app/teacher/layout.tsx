@@ -81,7 +81,7 @@ export default async function TeacherLayout({
         <div className="sidebar-footer">
           <div className="user-info">
             <div className="avatar">
-              {/* @ts-ignore - custom session type may not have image typed yet */}
+
               {session.user.image ? (
                 <img src={session.user.image} alt={session.user.name || "Avatar"} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
               ) : (

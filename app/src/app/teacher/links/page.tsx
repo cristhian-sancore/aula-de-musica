@@ -74,11 +74,10 @@ export default function LinksPage() {
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
     void fetchLinks();
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+     
     void fetchAvailableModules();
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+     
     void fetchSettings();
   }, []);
 

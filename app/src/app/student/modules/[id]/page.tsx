@@ -63,7 +63,6 @@ export default function ModulePlayerPage() {
           // Or the last one if all are completed
           let nextLesson = sortedLessons[0];
           if (data.completedLessonIds && data.completedLessonIds.length > 0) {
-            // @ts-ignore - data.completedLessonIds type check
             const firstUncompleted = sortedLessons.find((l: Lesson) => !data.completedLessonIds.includes(l.id));
             if (firstUncompleted) {
               nextLesson = firstUncompleted;
@@ -97,7 +96,6 @@ export default function ModulePlayerPage() {
 
   useEffect(() => {
     if (params.id) {
-      // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
       void fetchModuleData(params.id as string);
     }
   }, [params.id]);

@@ -52,7 +52,6 @@ export default function ModulesPage() {
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
     void fetchModules();
   }, []);
 

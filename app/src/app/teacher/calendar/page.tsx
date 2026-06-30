@@ -33,11 +33,6 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
 
-  useEffect(() => {
-    fetchSchedules();
-    fetchStudents();
-  }, [currentDate]);
-
   const fetchSchedules = async () => {
     setLoading(true);
     try {
@@ -67,6 +62,11 @@ export default function CalendarPage() {
       console.error("Erro ao buscar alunos:", error);
     }
   };
+
+  useEffect(() => {
+    fetchSchedules();
+    fetchStudents();
+  }, [currentDate]);
 
   const handlePrevWeek = () => setCurrentDate(subWeeks(currentDate, 1));
   const handleNextWeek = () => setCurrentDate(addWeeks(currentDate, 1));
