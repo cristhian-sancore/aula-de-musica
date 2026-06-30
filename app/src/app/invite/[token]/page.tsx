@@ -476,6 +476,7 @@ export default function InvitePage() {
                 <div className="form-group">
                   <label>Nome do responsável</label>
                   <input 
+                    required
                     className="input-field" 
                     value={responsavel} 
                     onChange={e => setResponsavel(e.target.value)} 
@@ -558,6 +559,7 @@ export default function InvitePage() {
                   <div className="form-group">
                     <label>Horário desejado</label>
                     <input 
+                      required
                       className="input-field" 
                       value={horario} 
                       onChange={e => setHorario(e.target.value)} 
