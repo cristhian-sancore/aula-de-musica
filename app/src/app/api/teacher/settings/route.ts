@@ -25,7 +25,10 @@ export async function GET() {
       });
     }
 
-    return NextResponse.json(settings);
+    return NextResponse.json({
+      ...settings,
+      inviteBaseUrl: process.env.NEXT_PUBLIC_INVITE_BASE_URL || null
+    });
   } catch (error) {
     console.error("Erro ao buscar configurações do professor:", error);
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });

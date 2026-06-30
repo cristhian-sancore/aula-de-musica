@@ -151,7 +151,7 @@ export default function LinksPage() {
   };
 
   const copyToClipboard = (token: string) => {
-    const baseUrl = process.env.NEXT_PUBLIC_INVITE_BASE_URL || window.location.origin;
+    const baseUrl = globalSettings?.inviteBaseUrl || window.location.origin;
     const url = `${baseUrl}/invite/${token}`;
     navigator.clipboard.writeText(url);
     alert("Link copiado para a área de transferência!");
@@ -231,7 +231,7 @@ export default function LinksPage() {
                   <button className="btn-secondary" onClick={() => copyToClipboard(link.token)}>
                     <Copy size={16} /> Copiar Link
                   </button>
-                  <a href={`${process.env.NEXT_PUBLIC_INVITE_BASE_URL || ''}/invite/${link.token}`} target="_blank" rel="noreferrer" className="btn-icon">
+                  <a href={`${globalSettings?.inviteBaseUrl || ''}/invite/${link.token}`} target="_blank" rel="noreferrer" className="btn-icon">
                     <ExternalLink size={18} />
                   </a>
                   <button className="btn-icon" style={{color: 'var(--color-primary)', marginLeft: 'auto'}} onClick={() => openEditModal(link)}>
