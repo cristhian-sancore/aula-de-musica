@@ -27,11 +27,23 @@ export async function PUT(req: Request) {
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
     const body = await req.json();
-    const { name, whatsapp, email, image, newPassword } = body;
+    const { name, whatsapp, email, image, newPassword, currentPassword } = body;
 
     const dataToUpdate: any = { name, whatsapp, email, image };
 
     if (newPassword) {
+      if (!currentPassword) {
+        return NextResponse.json({ error: "A senha atual é obrigatória para alterar a senha." }, { status: 400 });
+      }
+
+      const existingUser = await prisma.user.findUnique({
+        where: { id: session.user.id }
+      });
+
+      if (!existingUser || !(await bcrypt.compare(currentPassword, existingUser.password))) {
+        return NextResponse.json({ error: "A senha atual está incorreta." }, { status: 400 });
+      }
+
       if (newPassword.length < 6) {
         return NextResponse.json({ error: "A nova senha deve ter no mínimo 6 caracteres" }, { status: 400 });
       }

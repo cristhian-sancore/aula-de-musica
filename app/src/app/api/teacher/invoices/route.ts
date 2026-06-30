@@ -15,7 +15,15 @@ export async function GET(req: Request) {
     const month = searchParams.get("month");
     const year = searchParams.get("year");
 
-    const whereClause: any = {};
+    const whereClause: any = {
+      student: {
+        enrollments: {
+          some: {
+            module: { teacherId: session.user.id }
+          }
+        }
+      }
+    };
     if (month) whereClause.month = parseInt(month);
     if (year) whereClause.year = parseInt(year);
 
@@ -52,6 +60,17 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const { studentId, amount, dueDate, month, year } = body;
+
+    const studentEnrollment = await prisma.enrollment.findFirst({
+      where: {
+        studentId,
+        module: { teacherId: session.user.id }
+      }
+    });
+
+    if (!studentEnrollment) {
+      return NextResponse.json({ error: "Aluno não encontrado ou sem vínculo com este professor" }, { status: 403 });
+    }
 
     const invoice = await prisma.invoice.create({
       data: {

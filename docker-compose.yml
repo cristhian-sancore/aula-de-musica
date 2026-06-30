@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: secretpassword
       POSTGRES_DB: aulamusica
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -49,7 +49,7 @@ services:
     container_name: aula_musica_evolution
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       - SERVER_URL=http://localhost:8080 # Altere para o subdomínio da cloudflare se for expor a Evolution
       - CORS_ORIGIN=*
@@ -69,7 +69,9 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: aula_musica_cloudflared
-    command: tunnel --no-autoupdate run --token eyJhIjoiNTliMjg0ZjliMjEyNDJhMzc4ZjRjMWY4OGY1YTU1YWMiLCJ0IjoiOTg1Nzk3OWItMjY1Ni00MWZhLThkMDctN2M4NDBjMTVmZDRjIiwicyI6IlpEWm1PRFZoWlRVdE5XVXlPQzAwTmpNNExUZzFPVFF0WVdZMFkyTXpPRGM1WlRZMyJ9
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate run
     restart: unless-stopped
 
 volumes:

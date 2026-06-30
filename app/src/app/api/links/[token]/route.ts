@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(req: Request, { params }: { params: Promise<{ token: string }> }) {
   try {
@@ -91,8 +93,21 @@ export async function GET(req: Request, { params }: { params: Promise<{ token: s
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ token: string }> }) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "TEACHER") {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+
     const { token: id } = await params;
-    // The parameter is called token in the folder structure, but we pass the ID
+    
+    const existingLink = await prisma.customLink.findUnique({
+      where: { id: id },
+    });
+
+    if (!existingLink || existingLink.teacherId !== session.user.id) {
+      return NextResponse.json({ error: "Link não encontrado ou sem permissão" }, { status: 404 });
+    }
+
     await prisma.customLink.delete({
       where: {
         id: id,
@@ -108,9 +123,22 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ token
 
 export async function PUT(req: Request, { params }: { params: Promise<{ token: string }> }) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "TEACHER") {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+
     const { token: id } = await params;
     const body = await req.json();
     const { studentName, moduleIds, instruments, paymentMethods } = body;
+
+    const existingLink = await prisma.customLink.findUnique({
+      where: { id: id },
+    });
+
+    if (!existingLink || existingLink.teacherId !== session.user.id) {
+      return NextResponse.json({ error: "Link não encontrado ou sem permissão" }, { status: 404 });
+    }
 
     if (!moduleIds || !Array.isArray(moduleIds) || moduleIds.length === 0) {
       return NextResponse.json({ error: "É necessário selecionar pelo menos um módulo" }, { status: 400 });

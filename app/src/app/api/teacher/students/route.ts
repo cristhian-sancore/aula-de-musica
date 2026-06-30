@@ -15,7 +15,12 @@ export async function GET() {
     // Ou como é sistema para um professor, apenas role: 'STUDENT'
     const students = await prisma.user.findMany({
       where: {
-        role: "STUDENT"
+        role: "STUDENT",
+        enrollments: {
+          some: {
+            module: { teacherId: session.user.id }
+          }
+        }
       },
       select: {
         id: true,

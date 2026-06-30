@@ -17,6 +17,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Faltando lessonId" }, { status: 400 });
     }
 
+    const targetLesson = await prisma.videoLesson.findUnique({
+      where: { id: lessonId }
+    });
+
+    if (!targetLesson || !targetLesson.moduleId) {
+      return NextResponse.json({ error: "Aula inválida" }, { status: 404 });
+    }
+
+    const activeEnrollment = await prisma.enrollment.findFirst({
+      where: {
+        studentId: session.user.id,
+        moduleId: targetLesson.moduleId,
+        status: "ACTIVE"
+      }
+    });
+
+    if (!activeEnrollment) {
+      return NextResponse.json({ error: "Acesso negado: matrícula inativa ou inexistente." }, { status: 403 });
+    }
+
     if (completed) {
       // Mark as completed
       await prisma.lessonProgress.upsert({

@@ -64,6 +64,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Faltando lessonId ou content" }, { status: 400 });
     }
 
+    const targetLesson = await prisma.videoLesson.findUnique({
+      where: { id: lessonId }
+    });
+
+    if (!targetLesson || !targetLesson.moduleId) {
+      return NextResponse.json({ error: "Aula inválida" }, { status: 404 });
+    }
+
+    const activeEnrollment = await prisma.enrollment.findFirst({
+      where: {
+        studentId: session.user.id,
+        moduleId: targetLesson.moduleId,
+        status: "ACTIVE"
+      }
+    });
+
+    if (!activeEnrollment) {
+      return NextResponse.json({ error: "Você precisa ter uma matrícula ativa neste curso para enviar dúvidas." }, { status: 403 });
+    }
+
     const message = await prisma.lessonMessage.create({
       data: {
         studentId: session.user.id,
