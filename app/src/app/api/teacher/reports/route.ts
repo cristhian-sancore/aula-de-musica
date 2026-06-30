@@ -67,24 +67,20 @@ export async function GET() {
       },
       include: {
         student: {
-          select: { name: true, whatsapp: true }
+          select: { id: true, name: true, whatsapp: true }
         }
       },
       orderBy: { dueDate: "desc" }
     });
 
-    // 4. Buscar histórico de agendamentos e chamadas recentes (últimos 90 dias até os próximos 30)
-    const ninetyDaysAgo = new Date();
-    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-
+    // 4. Buscar histórico de agendamentos e chamadas
     const schedules = await prisma.classSchedule.findMany({
       where: {
-        teacherId,
-        date: { gte: ninetyDaysAgo }
+        teacherId
       },
       include: {
         student: {
-          select: { name: true }
+          select: { id: true, name: true }
         },
         attendance: true
       },
