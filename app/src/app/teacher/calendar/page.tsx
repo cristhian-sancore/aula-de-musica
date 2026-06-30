@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, User } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, User, Trash2 } from "lucide-react";
 import { format, addDays, startOfWeek, endOfWeek, subWeeks, addWeeks, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import "./calendar.css";
@@ -114,6 +114,22 @@ export default function CalendarPage() {
     }
   };
 
+  const handleDeleteSchedule = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm("Tem certeza que deseja excluir este agendamento?")) return;
+
+    try {
+      const res = await fetch(`/api/teacher/calendar/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchSchedules();
+      } else {
+        alert("Erro ao excluir agendamento.");
+      }
+    } catch (error) {
+      console.error("Erro ao excluir", error);
+    }
+  };
+
   const renderWeekDays = () => {
     const start = startOfWeek(currentDate, { weekStartsOn: 0 });
     const days = [];
@@ -134,14 +150,24 @@ export default function CalendarPage() {
           <div className="day-slots">
             {daySchedules.length > 0 ? (
               daySchedules.map(schedule => (
-                <div key={schedule.id} className={`schedule-card ${schedule.attendance ? 'status-completed' : ''}`}>
-                  <div className="schedule-time">
-                    <Clock size={12} style={{marginRight: 4, display: 'inline'}} />
-                    {format(new Date(schedule.date), 'HH:mm')}
+                <div key={schedule.id} className={`schedule-card ${schedule.attendance ? 'status-completed' : ''}`} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div className="schedule-time">
+                      <Clock size={12} style={{marginRight: 4, display: 'inline'}} />
+                      {format(new Date(schedule.date), 'HH:mm')}
+                    </div>
+                    <div className="schedule-student">
+                      {schedule.student?.name}
+                    </div>
                   </div>
-                  <div className="schedule-student">
-                    {schedule.student?.name}
-                  </div>
+                  <button 
+                    type="button" 
+                    onClick={(e) => handleDeleteSchedule(schedule.id, e)}
+                    style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", padding: "2px", opacity: 0.8 }}
+                    title="Excluir agendamento"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </div>
               ))
             ) : (

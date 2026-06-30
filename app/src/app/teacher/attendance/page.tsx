@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
+import { CheckCircle, XCircle, Clock, AlertCircle, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import "./attendance.css";
@@ -96,6 +96,23 @@ export default function AttendancePage() {
     }
   };
 
+  const handleDeleteSchedule = async (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!confirm("Tem certeza que deseja excluir esta aula?")) return;
+
+    try {
+      const res = await fetch(`/api/teacher/attendance/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setShowModal(false);
+        fetchPendingSchedules();
+      } else {
+        alert("Erro ao excluir aula.");
+      }
+    } catch (error) {
+      console.error("Erro ao excluir", error);
+    }
+  };
+
   return (
     <div className="attendance-page">
       <div className="page-header">
@@ -126,7 +143,7 @@ export default function AttendancePage() {
                   </div>
                 </div>
                 
-                <div className="attendance-status">
+                <div className="attendance-status" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   {!hasAttendance ? (
                     <span className="badge pending">Pendente</span>
                   ) : isPresent ? (
@@ -134,6 +151,14 @@ export default function AttendancePage() {
                   ) : (
                     <span className="badge absent"><XCircle size={14} /> Falta {schedule.attendance?.status === "JUSTIFIED" ? "(Justificada)" : ""}</span>
                   )}
+                  <button 
+                    type="button" 
+                    onClick={(e) => handleDeleteSchedule(schedule.id, e)}
+                    style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center" }}
+                    title="Excluir aula"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               </div>
             );
@@ -200,9 +225,18 @@ export default function AttendancePage() {
                 ></textarea>
               </div>
 
-              <div className="modal-footer">
-                <button type="button" className="btn-secondary" onClick={() => setShowModal(false)}>Cancelar</button>
-                <button type="submit" className="btn-primary">Salvar Chamada</button>
+              <div className="modal-footer" style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                <button 
+                  type="button" 
+                  onClick={() => handleDeleteSchedule(selectedSchedule.id)}
+                  style={{ background: "#ef4444", color: "white", border: "none", padding: "8px 14px", borderRadius: "6px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", fontWeight: 600 }}
+                >
+                  <Trash2 size={16} /> Excluir Aula
+                </button>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button type="button" className="btn-secondary" onClick={() => setShowModal(false)}>Cancelar</button>
+                  <button type="submit" className="btn-primary">Salvar Chamada</button>
+                </div>
               </div>
             </form>
           </div>
