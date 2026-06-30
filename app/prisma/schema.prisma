@@ -25,6 +25,26 @@ enum LinkStatus {
   INACTIVE
 }
 
+enum ClassScheduleStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  JUSTIFIED
+  LATE
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELED
+}
+
 model User {
   id        String   @id @default(uuid())
   name      String
@@ -46,6 +66,11 @@ model User {
   enrollments Enrollment[]     @relation("StudentEnrollments")
   progresses  LessonProgress[] @relation("StudentProgress")
   messages    LessonMessage[]  @relation("StudentMessages")
+  
+  // In-person relationships
+  schedulesAsTeacher ClassSchedule[] @relation("TeacherSchedules")
+  schedulesAsStudent ClassSchedule[] @relation("StudentSchedules")
+  invoices           Invoice[]       @relation("StudentInvoices")
 }
 
 model TeacherSettings {
@@ -160,10 +185,16 @@ model Enrollment {
   installments  Int?    @default(1)
 
   responsavel String?
-  horario     String?
+  horario     String? // Dia e horário escolhidos (texto livre legado)
   cidade      String?
   conheceu    String?
   observacoes String?
+
+  // Campos para gestão presencial
+  dueDay             Int?    // Dia de vencimento da mensalidade (1-31)
+  dayOfWeek          Int?    // Dia da semana (0=Dom, 1=Seg, ..., 6=Sáb)
+  classTime          String? // Horário no formato "HH:mm" (Ex: "14:00")
+  replacementCredits Int     @default(0) // Créditos para reposição de faltas justificadas
 
   status    EnrollmentStatus @default(PENDING_PAYMENT)
   student   User             @relation("StudentEnrollments", fields: [studentId], references: [id])
@@ -172,4 +203,44 @@ model Enrollment {
   updatedAt DateTime         @updatedAt
 
   @@unique([studentId, moduleId])
+}
+
+model ClassSchedule {
+  id        String              @id @default(uuid())
+  teacherId String
+  studentId String
+  date      DateTime            // Data e hora exata da aula agendada
+  status    ClassScheduleStatus @default(SCHEDULED)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  teacher   User        @relation("TeacherSchedules", fields: [teacherId], references: [id])
+  student   User        @relation("StudentSchedules", fields: [studentId], references: [id])
+  attendance Attendance?
+}
+
+model Attendance {
+  id              String           @id @default(uuid())
+  classScheduleId String           @unique
+  status          AttendanceStatus @default(PRESENT)
+  observation     String?          @db.Text
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  classSchedule   ClassSchedule    @relation(fields: [classScheduleId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id          String        @id @default(uuid())
+  studentId   String
+  amount      Float
+  dueDate     DateTime
+  month       Int
+  year        Int
+  status      InvoiceStatus @default(PENDING)
+  paidAt      DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  student     User          @relation("StudentInvoices", fields: [studentId], references: [id], onDelete: Cascade)
 }
