@@ -12,12 +12,21 @@ import { prisma } from "@/lib/prisma";
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const teacherSettings = await prisma.teacherSettings.findFirst();
+    const teacherSettings = await prisma.teacherSettings.findFirst({
+      include: {
+        teacher: true
+      }
+    });
     const platformName = teacherSettings?.platformName || "Aula de Música 2.0 - LMS";
+    const iconUrl = teacherSettings?.teacher?.image || "/favicon.ico";
 
     return {
       title: platformName,
       description: "Plataforma premium para ensino de música",
+      icons: {
+        icon: iconUrl,
+        apple: iconUrl,
+      }
     };
   } catch (error) {
     return {
