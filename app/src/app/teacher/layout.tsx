@@ -59,7 +59,7 @@ export default async function TeacherLayout({
             <CalendarCheck size={20} />
             <span>Chamada (Diário)</span>
           </Link>
-          <Link href="/teacher/financial" className="nav-link">
+          <Link href="/teacher/invoices" className="nav-link">
             <DollarSign size={20} />
             <span>Financeiro</span>
           </Link>

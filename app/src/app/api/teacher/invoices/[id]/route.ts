@@ -19,18 +19,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const existingInvoice = await prisma.invoice.findUnique({
       where: { id },
       include: {
-        student: {
-          include: {
-            enrollments: {
-              where: { module: { teacherId: session.user.id } }
-            }
-          }
-        }
+        student: true
       }
     });
 
-    if (!existingInvoice || existingInvoice.student.enrollments.length === 0) {
-      return NextResponse.json({ error: "Fatura não encontrada ou sem permissão" }, { status: 404 });
+    if (!existingInvoice || existingInvoice.student.role !== "STUDENT") {
+      return NextResponse.json({ error: "Fatura não encontrada ou inválida" }, { status: 404 });
     }
 
     const data: any = { status };
@@ -66,18 +60,12 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const existingInvoice = await prisma.invoice.findUnique({
       where: { id },
       include: {
-        student: {
-          include: {
-            enrollments: {
-              where: { module: { teacherId: session.user.id } }
-            }
-          }
-        }
+        student: true
       }
     });
 
-    if (!existingInvoice || existingInvoice.student.enrollments.length === 0) {
-      return NextResponse.json({ error: "Fatura não encontrada ou sem permissão" }, { status: 404 });
+    if (!existingInvoice || existingInvoice.student.role !== "STUDENT") {
+      return NextResponse.json({ error: "Fatura não encontrada ou inválida" }, { status: 404 });
     }
 
     await prisma.invoice.delete({

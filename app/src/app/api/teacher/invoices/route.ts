@@ -17,11 +17,7 @@ export async function GET(req: Request) {
 
     const whereClause: any = {
       student: {
-        enrollments: {
-          some: {
-            module: { teacherId: session.user.id }
-          }
-        }
+        role: "STUDENT"
       }
     };
     if (month) whereClause.month = parseInt(month);
@@ -61,15 +57,15 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { studentId, amount, dueDate, month, year } = body;
 
-    const studentEnrollment = await prisma.enrollment.findFirst({
+    const studentExists = await prisma.user.findFirst({
       where: {
-        studentId,
-        module: { teacherId: session.user.id }
+        id: studentId,
+        role: "STUDENT"
       }
     });
 
-    if (!studentEnrollment) {
-      return NextResponse.json({ error: "Aluno não encontrado ou sem vínculo com este professor" }, { status: 403 });
+    if (!studentExists) {
+      return NextResponse.json({ error: "Aluno não encontrado ou inválido" }, { status: 403 });
     }
 
     const invoice = await prisma.invoice.create({
