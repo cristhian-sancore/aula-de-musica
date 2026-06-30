@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import "./layout.css";
 import Link from "next/link";
-import { BookOpen, Users, LayoutDashboard, Link as LinkIcon, LogOut, Settings, User, MessageSquare, Music, MessageCircle, Calendar, DollarSign, CalendarCheck } from "lucide-react";
+import { BookOpen, Users, LayoutDashboard, Link as LinkIcon, LogOut, Settings, User, MessageSquare, Music, MessageCircle, Calendar, DollarSign, CalendarCheck, FileText } from "lucide-react";
 import { LogoutButton } from "@/components/LogoutButton";
 
 export default async function TeacherLayout({
@@ -62,6 +62,10 @@ export default async function TeacherLayout({
           <Link href="/teacher/invoices" className="nav-link">
             <DollarSign size={20} />
             <span>Financeiro</span>
+          </Link>
+          <Link href="/teacher/reports" className="nav-link">
+            <FileText size={20} />
+            <span>Relatórios / PDF</span>
           </Link>
           <div className="sidebar-divider">CONFIGURAÇÕES</div>
           <Link href="/teacher/profile" className="nav-link">

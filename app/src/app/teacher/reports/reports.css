@@ -1,0 +1,221 @@
+.reports-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.page-header h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-text-main);
+}
+
+.page-header p {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.reports-tabs {
+  display: flex;
+  gap: 12px;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 4px;
+  overflow-x: auto;
+}
+
+.report-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.report-tab-btn:hover {
+  background-color: rgba(218, 123, 26, 0.05);
+  color: var(--color-primary);
+}
+
+.report-tab-btn.active {
+  color: var(--color-primary);
+  border-bottom: 3px solid var(--color-primary);
+  margin-bottom: -6px;
+  background-color: rgba(218, 123, 26, 0.08);
+}
+
+.report-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.report-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.report-card-title h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.report-card-title p {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+.btn-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #dc2626;
+  color: white;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+}
+
+.btn-pdf:hover {
+  background-color: #b91c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+}
+
+.report-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-box {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-box span {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.stat-box strong {
+  font-size: 1.4rem;
+  color: var(--color-text-main);
+  margin-top: 6px;
+}
+
+.stat-box.success strong {
+  color: #10b981;
+}
+
+.stat-box.warning strong {
+  color: #f59e0b;
+}
+
+.stat-box.danger strong {
+  color: #ef4444;
+}
+
+.reports-table-container {
+  overflow-x: auto;
+}
+
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reports-table th {
+  text-align: left;
+  padding: 12px 14px;
+  background-color: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.reports-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.9rem;
+  color: var(--color-text-main);
+}
+
+.reports-table tr:hover {
+  background-color: rgba(218, 123, 26, 0.03);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-badge.active {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.status-badge.pending {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.status-badge.overdue {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+@media (max-width: 768px) {
+  .report-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .btn-pdf {
+    width: 100%;
+    justify-content: center;
+  }
+}
