@@ -51,6 +51,19 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.role = token.role as string;
         session.user.id = token.id as string;
+        
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { image: true, name: true }
+          });
+          if (dbUser) {
+            session.user.image = dbUser.image;
+            session.user.name = dbUser.name;
+          }
+        } catch (err) {
+          console.error("Erro ao buscar dados do usuário na sessão:", err);
+        }
       }
       return session;
     }
